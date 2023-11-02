@@ -1,23 +1,29 @@
-const { PutCommand } = require("@aws-sdk/lib-dynamodb");
-const { dynamoDBDocClient } = require('../aws-config');
+const { MongoClient } = require('mongodb');
 
-const docClient = dynamoDBDocClient;
+// MongoDB connection string for a local instance
+const uri = "mongodb://localhost:27017";
+
+const client = new MongoClient(uri);
+
+let usersCollection;
+
+// Connect to MongoDB and get the 'users' collection
+client.connect(err => {
+  if (err) {
+    console.error('Error connecting to MongoDB:', err);
+    return;
+  }
+  usersCollection = client.db("automation").collection("users"); // "automation" is the name of the database
+});
 
 const addUser = async (user) => {
-  const params = {
-      TableName: 'Users',
-      Item: user
-  };
-
-  console.log("Inserting user into DynamoDB:", user); // Log the user data
-
   try {
-      const data = await docClient.send(new PutCommand(params));
-      console.log("User added to DynamoDB:", data); // Log the response from DynamoDB
-      return data;
+    const result = await usersCollection.insertOne(user);
+    console.log("User added to MongoDB:", result);
+    return result;
   } catch (err) {
-      console.error('Error adding user:', err);
-      throw err;
+    console.error('Error adding user:', err);
+    throw err;
   }
 };
 

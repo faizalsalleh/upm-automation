@@ -22,17 +22,19 @@ const uri = "mongodb://localhost:27017/automation";
 
 const client = new MongoClient(uri);
 
-// Connect to MongoDB
-client.connect(err => {
-    if (err) {
+async function startServer() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
+
+        const PORT = 3000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    } catch (err) {
         console.error('Error connecting to MongoDB:', err);
         process.exit(1); // Exit the process with a failure code
     }
-    console.log('Connected to MongoDB');
+}
 
-    // Start the Server
-    const PORT = 3000;
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-});
+startServer();

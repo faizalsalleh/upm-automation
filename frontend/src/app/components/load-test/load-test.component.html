@@ -1,0 +1,34 @@
+<div class="card">
+  <div class="card-header">
+      Start New Load Test
+  </div>
+  <div class="card-body">
+    <form (ngSubmit)="onStartTest(userCount.value, spawnRate.value, host.value)">
+      <div class="form-group">
+        <label for="users">Number of users (peak concurrency)</label>
+        <input type="number" #userCount placeholder="Number of users">
+        <!-- <input [(ngModel)]="users" type="number" class="form-control" id="users" placeholder="Enter number of users"> -->
+      </div>
+      <div class="form-group">
+        <label for="spawnRate">Spawn rate (users started/second)</label>
+        <input type="number" #spawnRate placeholder="Spawn rate">
+        <!-- <input [(ngModel)]="spawnRate" type="number" class="form-control" id="spawnRate" placeholder="Enter spawn rate"> -->
+        </div>
+      <div class="form-group">
+        <label for="host">Host</label>
+        <input type="text" #host placeholder="e.g. http://www.example.com">
+        <!-- <input [(ngModel)]="host" type="text" class="form-control" id="host" placeholder="e.g. http://www.example.com"> -->
+      </div>
+      <div class="form-group">
+        <label for="runTime">Run time (Optional)</label>
+        <!-- <input type="text" #runTime placeholder="e.g. 20, 20s, 3m, 2h"> -->
+        <!-- <input [(ngModel)]="runTime" type="text" class="form-control" id="runTime" placeholder="e.g. 20, 20s, 3m, 2h"> -->
+      </div>
+      <button type="submit">Start Test</button>
+      <!-- <button (click)="startTest()" type="button" class="btn btn-primary">Start Test</button> -->
+    </form>
+    <button (click)="onStopTest()">Stop Test</button>
+    <button (click)="onGetStats()">Get Stats</button>
+    <button (click)="onResetStats()">Reset Stats</button>
+</div>
+</div>

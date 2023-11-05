@@ -35,7 +35,8 @@
               "node_modules/admin-lte/plugins/icheck-bootstrap/icheck-bootstrap.min.css",
               "node_modules/admin-lte/plugins/jqvmap/jqvmap.min.css",
               "node_modules/admin-lte/dist/css/adminlte.min.css",
-              "node_modules/admin-lte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css"
+              "node_modules/admin-lte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css",
+              "src/assets/css/automation.css"
             ],
             "scripts": [
               "node_modules/admin-lte/plugins/jquery/jquery.min.js",

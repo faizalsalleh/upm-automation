@@ -3,32 +3,27 @@
       Start New Load Test
   </div>
   <div class="card-body">
-    <form (ngSubmit)="onStartTest(userCount.value, spawnRate.value, host.value)">
+    <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group">
         <label for="users">Number of users (peak concurrency)</label>
-        <input type="number" #userCount placeholder="Number of users">
-        <!-- <input [(ngModel)]="users" type="number" class="form-control" id="users" placeholder="Enter number of users"> -->
+        <input formControlName="userCount" type="number" placeholder="Number of users" class="form-control">
       </div>
       <div class="form-group">
         <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input type="number" #spawnRate placeholder="Spawn rate">
-        <!-- <input [(ngModel)]="spawnRate" type="number" class="form-control" id="spawnRate" placeholder="Enter spawn rate"> -->
-        </div>
+        <input formControlName="spawnRate" type="number" placeholder="Spawn rate" class="form-control">
+      </div>
       <div class="form-group">
         <label for="host">Host</label>
-        <input type="text" #host placeholder="e.g. http://www.example.com">
-        <!-- <input [(ngModel)]="host" type="text" class="form-control" id="host" placeholder="e.g. http://www.example.com"> -->
+        <input formControlName="host" type="text" placeholder="e.g. http://www.example.com" class="form-control">
       </div>
       <div class="form-group">
         <label for="runTime">Run time (Optional)</label>
-        <!-- <input type="text" #runTime placeholder="e.g. 20, 20s, 3m, 2h"> -->
-        <!-- <input [(ngModel)]="runTime" type="text" class="form-control" id="runTime" placeholder="e.g. 20, 20s, 3m, 2h"> -->
+        <!-- <input type="text" #runTime placeholder="e.g. 20, 20s, 3m, 2h" class="form-control"> -->
       </div>
-      <button type="submit">Start Test</button>
-      <!-- <button (click)="startTest()" type="button" class="btn btn-primary">Start Test</button> -->
+      <button type="submit" [disabled]="!form.valid" class="btn btn-success mr-2">Start Test</button>
+      <button (click)="onStopTest()" class="btn btn-danger mr-2">Stop Test</button>
+      <button (click)="onGetStats()" class="btn btn-primary mr-2">Get Stats</button>
+      <button (click)="onResetStats()" class="btn btn-warning mr-2">Reset Stats</button>
     </form>
-    <button (click)="onStopTest()">Stop Test</button>
-    <button (click)="onGetStats()">Get Stats</button>
-    <button (click)="onResetStats()">Reset Stats</button>
-</div>
+  </div>
 </div>

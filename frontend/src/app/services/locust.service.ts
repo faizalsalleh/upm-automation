@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,23 +13,33 @@ export class LocustService {
   constructor(private http: HttpClient) { }
 
   startLoadTest(userCount: number, spawnRate: number, host: string): Observable<any> {
-    const body = {
-      user_count: userCount,
-      spawn_rate: spawnRate,
-      host: host
-    };
-    return this.http.post(`${this.baseUrl}/swarm`, body);
+    const body = `user_count=${userCount}&spawn_rate=${spawnRate}&host=${host}`;
+    const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+    return this.http.post(`${this.baseUrl}/swarm`, body, { headers: headers }).pipe(
+      catchError(this.handleError)
+    );
   }
 
   stopLoadTest(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/stop`, {});
+    return this.http.post(`${this.baseUrl}/stop`, {}).pipe(
+      catchError(this.handleError)
+    );
   }
 
   getStats(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/stats/requests`);
+    return this.http.get(`${this.baseUrl}/stats/requests`).pipe(
+      catchError(this.handleError)
+    );
   }
 
   resetStats(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/stats/reset`);
+    return this.http.get(`${this.baseUrl}/stats/reset`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('An error occurred:', error.error.message);
+    return throwError('Something went wrong; please try again later.');
   }
 }

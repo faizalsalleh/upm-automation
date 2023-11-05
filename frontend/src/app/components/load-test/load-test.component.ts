@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { LocustService } from '../../services/locust.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-load-test',
@@ -7,14 +8,24 @@ import { LocustService } from '../../services/locust.service';
   styleUrls: ['./load-test.component.scss']
 })
 export class LoadTestComponent {
+  form: FormGroup;
 
-  constructor(private locustService: LocustService) { }
-
-  onStartTest(userCount: string, spawnRate: string, host: string): void {
-    this.locustService.startLoadTest(+userCount, +spawnRate, host).subscribe(response => {
-      console.log('Test started:', response);
+  constructor(private locustService: LocustService, private fb: FormBuilder) {
+    this.form = this.fb.group({
+      userCount: ['', Validators.required],
+      spawnRate: ['', Validators.required],
+      host: ['', Validators.required]
     });
-}
+  }
+
+  onStartTest(): void {
+    if (this.form.valid) {
+      const { userCount, spawnRate, host } = this.form.value;
+      this.locustService.startLoadTest(userCount, spawnRate, host).subscribe(response => {
+        console.log('Test started:', response);
+      });
+    }
+  }
 
   onStopTest(): void {
     this.locustService.stopLoadTest().subscribe(response => {

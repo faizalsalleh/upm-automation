@@ -40,8 +40,14 @@ export class LoadTestComponent {
   }
 
   onResetStats(): void {
-    this.locustService.resetStats().subscribe(response => {
-      console.log('Stats reset:', response);
+    this.locustService.resetStats().subscribe({
+        next: (response) => {
+            console.log('Stats reset:', response);
+        },
+        error: (error) => {
+            console.error('Error:', error);
+            // Handle the error, e.g., show a user-friendly message on the UI
+        }
     });
   }
 }

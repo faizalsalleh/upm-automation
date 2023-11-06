@@ -21,8 +21,8 @@ export class LocustService {
   }
 
   stopLoadTest(): Observable<any> {
-    return this.http.post(`${this.baseUrl}/stop`, {}).pipe(
-      catchError(this.handleError)
+    return this.http.get(`${this.baseUrl}/stop`).pipe(
+        catchError(this.handleError)
     );
   }
 
@@ -39,7 +39,11 @@ export class LocustService {
   }
 
   private handleError(error: HttpErrorResponse) {
-    console.error('An error occurred:', error.error.message);
-    return throwError('Something went wrong; please try again later.');
+    let errorMessage = 'Something went wrong; please try again later.';
+    if (error.error && error.error.message) {
+        console.error('An error occurred:', error.error.message);
+        errorMessage = error.error.message;
+    }
+    return throwError(() => new Error(errorMessage));
   }
 }

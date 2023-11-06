@@ -27,7 +27,7 @@
     Table Result
   </div>
   <div class="card-body">
-    <table class="table table-bordered" *ngIf="statsData.length > 0; else noDataTemplate">
+    <table class="table table-bordered" *ngIf="individualTestResults.length > 0; else noDataTemplate">
       <thead>
         <tr>
           <th>#</th>
@@ -47,7 +47,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let stat of statsData; let i = index">
+        <tr *ngFor="let stat of individualTestResults; let i = index">
           <td>{{ i + 1 }}.</td>
           <td>{{ stat.method }}</td>
           <td>{{ stat.name }}</td>
@@ -62,6 +62,20 @@
           <td>{{ stat.avg_content_length }}</td>
           <td>{{ stat.current_rps }}</td>
           <td>{{ stat.current_fail_per_sec }}</td>
+        </tr>
+        <tr *ngIf="aggregatedResult">
+          <td colspan="3">Aggregated</td>
+          <td>{{ aggregatedResult!.num_requests }}</td>
+          <td>{{ aggregatedResult!.num_failures }}</td>
+          <td>{{ aggregatedResult!.median_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.ninetieth_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.ninety_ninth_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.avg_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.min_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.max_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.avg_content_length | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.current_rps | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.current_fail_per_sec | number:'1.0-3' }}</td>
         </tr>
       </tbody>
     </table>

@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { LocustService } from '../../services/locust.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
 
-// Define the structure of the stats object
 interface Stat {
   avg_content_length: number;
   avg_response_time: number;
@@ -18,12 +16,7 @@ interface Stat {
   ninety_ninth_response_time: number;
   num_failures: number;
   num_requests: number;
-  safe_name: string;
-}
-
-interface StatsResponse {
-  stats: Stat[];
-  // Add other properties from the response if needed
+  safe_name?: string;
 }
 
 @Component({
@@ -33,10 +26,8 @@ interface StatsResponse {
 })
 export class LoadTestComponent {
   form: FormGroup;
-  isTesting: boolean = false; // To track if the testing is in progress
-  statsData: Stat[] = []; // To store the stats data
-  testInProgress: boolean = false;
-  testResults: Stat[] = [];
+  isTesting: boolean = false;
+  individualTestResults: Stat[] = [];
   aggregatedResult: Stat | null = null;
 
   constructor(private locustService: LocustService, private fb: FormBuilder) {
@@ -49,14 +40,13 @@ export class LoadTestComponent {
 
   onStartTest(): void {
     if (this.form.valid) {
-      this.isTesting = true; // Set testing flag to true
+      this.isTesting = true;
       const { userCount, spawnRate, host } = this.form.value;
       this.locustService.startLoadTest(userCount, spawnRate, host).subscribe(response => {
         console.log('Test started:', response);
-        // Wait for a certain amount of time before stopping the test
         setTimeout(() => {
           this.onStopTest();
-        }, 5000); // Wait for 5 seconds (or the duration of your test)
+        }, 5000);
       });
     }
   }
@@ -64,25 +54,89 @@ export class LoadTestComponent {
   onStopTest(): void {
     this.locustService.stopLoadTest().subscribe(response => {
       console.log('Test stopped:', response);
-      // After stopping the test, get the stats
       this.onGetStats();
     });
   }
 
   onGetStats(): void {
-    this.locustService.getStats().subscribe((stats: StatsResponse) => {
+    this.locustService.getStats().subscribe(stats => {
       console.log('Current stats:', stats);
-      this.statsData = [...this.statsData, ...stats.stats]; // Append the new stats to the array
-      this.isTesting = false; // Set testing flag to false
-      // Optionally, you can reset stats here if needed
-      this.onResetStats();
+
+      // Filter out the 'Aggregated' entry from the stats array
+      const filteredStats = stats.stats.filter(stat => stat.name !== 'Aggregated');
+
+      // Now, only individual test results are pushed into the array
+      this.individualTestResults.push(...filteredStats);
+
+      // If you need to calculate aggregated results manually, do it here
+      this.calculateAggregatedResults();
+
+      this.isTesting = false;
     });
   }
 
   onResetStats(): void {
     this.locustService.resetStats().subscribe(response => {
       console.log('Stats reset:', response);
-      // Resetting stats is complete, you can now start a new test if needed
     });
   }
+
+// ...
+
+calculateAggregatedResults(): void {
+  // Initialize the aggregatedResult object with zeros or appropriate starting values
+  const initialAggregatedResult: Stat = {
+    avg_content_length: 0,
+    avg_response_time: 0,
+    current_fail_per_sec: 0,
+    current_rps: 0,
+    max_response_time: 0,
+    median_response_time: 0,
+    method: '', // method might not be relevant for aggregated results
+    min_response_time: Number.MAX_SAFE_INTEGER,
+    ninetieth_response_time: 0,
+    ninety_ninth_response_time: 0,
+    num_failures: 0,
+    num_requests: 0,
+    name: 'Aggregated', // or any other identifier you prefer
+    safe_name: 'aggregated' // or any other identifier you prefer
+  };
+
+  // Sum up all the values for each test result
+  this.individualTestResults.forEach(stat => {
+    initialAggregatedResult.avg_content_length += stat.avg_content_length;
+    initialAggregatedResult.avg_response_time += stat.avg_response_time;
+    initialAggregatedResult.current_fail_per_sec += stat.current_fail_per_sec;
+    initialAggregatedResult.current_rps += stat.current_rps;
+    initialAggregatedResult.max_response_time = Math.max(initialAggregatedResult.max_response_time, stat.max_response_time);
+    initialAggregatedResult.median_response_time += stat.median_response_time;
+    // Assuming min_response_time should be the minimum of all tests
+    initialAggregatedResult.min_response_time = Math.min(initialAggregatedResult.min_response_time, stat.min_response_time);
+    initialAggregatedResult.ninetieth_response_time += stat.ninetieth_response_time;
+    initialAggregatedResult.ninety_ninth_response_time += stat.ninety_ninth_response_time;
+    initialAggregatedResult.num_failures += stat.num_failures;
+    initialAggregatedResult.num_requests += stat.num_requests;
+  });
+
+  // Calculate averages by dividing by the number of test results
+  const testCount = this.individualTestResults.length;
+  if (testCount > 0) {
+    initialAggregatedResult.avg_content_length /= testCount;
+    initialAggregatedResult.avg_response_time /= testCount;
+    initialAggregatedResult.median_response_time /= testCount;
+    initialAggregatedResult.ninetieth_response_time /= testCount;
+    initialAggregatedResult.ninety_ninth_response_time /= testCount;
+    // For current RPS and current failures per second, you might want to take the average or the max
+    initialAggregatedResult.current_rps /= testCount;
+    initialAggregatedResult.current_fail_per_sec /= testCount;
+    // If min_response_time is MAX_SAFE_INTEGER, it means no requests were made
+    if (initialAggregatedResult.min_response_time === Number.MAX_SAFE_INTEGER) {
+      initialAggregatedResult.min_response_time = 0;
+    }
+  }
+
+  // Assign the calculated result to this.aggregatedResult
+  this.aggregatedResult = initialAggregatedResult;
+}
+
 }

@@ -1,46 +1,35 @@
 <div class="card">
   <div class="card-header">
-      Start New Load Test
+    Start New Load Test
   </div>
   <div class="card-body">
-    <form [formGroup]="form" name="formTest" id="formTest" (ngSubmit)="onStartTest()">
+    <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group">
         <label for="userCount">Number of users (peak concurrency)</label>
-        <input formControlName="userCount" name="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control">
+        <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control">
       </div>
       <div class="form-group">
         <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input formControlName="spawnRate" name="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control">
+        <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control">
       </div>
       <div class="form-group">
         <label for="host">Host</label>
-        <input formControlName="host" name="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control">
+        <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control">
       </div>
-      <div class="form-group">
-        <!-- <label for="runTime">Run time (Optional)</label> -->
-        <!-- <input type="text" name="runTime" id="runTime" #runTime placeholder="e.g. 20, 20s, 3m, 2h" class="form-control"> -->
-      </div>
-      <button type="submit" name="submit" id="submit" [disabled]="!form.valid" class="btn btn-success mr-2">Start Test</button>
+      <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
     </form>
-    <!-- <div class="form-group">
-      <button type="button" (click)="onStopTest(); $event.stopPropagation()" name="stop" id="stop" class="btn btn-danger mr-2">Stop Test</button>
-      <button type="button" (click)="onGetStats(); $event.stopPropagation()" name="getStats" id="getStats" class="btn btn-primary mr-2">Get Stats</button>
-      <button type="button" (click)="onResetStats(); $event.stopPropagation()" name="resetStats" id="resetStats" class="btn btn-warning mr-2">Reset Stats</button>
-    </div>
-  </div> -->
+    <div *ngIf="isTesting" class="alert alert-info mt-3">Test in progress...</div>
+  </div>
 </div>
 
-<div class="card">
+<div class="card mt-4">
   <div class="card-header">
-      Table Result
+    Table Result
   </div>
   <div class="card-body">
-  <!-- Progress Text -->
-  <div *ngIf="isTesting" class="alert alert-info">Test in progress...</div>
-
-    <table class="table table-bordered">
+    <table class="table table-bordered" *ngIf="statsData.length > 0; else noDataTemplate">
       <thead>
-      <tr>
+        <tr>
           <th>#</th>
           <th>Type</th>
           <th>Name (Page)</th>
@@ -55,7 +44,7 @@
           <th>Average Size (bytes)</th>
           <th>Current RPS</th>
           <th>Current Failures/s</th>
-      </tr>
+        </tr>
       </thead>
       <tbody>
         <tr *ngFor="let stat of statsData; let i = index">
@@ -75,7 +64,9 @@
           <td>{{ stat.current_fail_per_sec }}</td>
         </tr>
       </tbody>
-  </table>
-
+    </table>
+    <ng-template #noDataTemplate>
+      <div class="alert alert-warning">No data available yet.</div>
+    </ng-template>
   </div>
 </div>

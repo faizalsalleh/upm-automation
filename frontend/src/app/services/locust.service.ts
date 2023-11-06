@@ -3,6 +3,29 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+// Define the structure of the stats object as per your API response
+interface Stat {
+  avg_content_length: number;
+  avg_response_time: number;
+  current_fail_per_sec: number;
+  current_rps: number;
+  max_response_time: number;
+  median_response_time: number;
+  method: string;
+  min_response_time: number;
+  name: string;
+  ninetieth_response_time: number;
+  ninety_ninth_response_time: number;
+  num_failures: number;
+  num_requests: number;
+  safe_name: string;
+}
+
+interface StatsResponse {
+  stats: Stat[];
+  // Add other properties from the response if needed
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,8 +49,8 @@ export class LocustService {
     );
   }
 
-  getStats(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/stats/requests`).pipe(
+  getStats(): Observable<StatsResponse> {
+    return this.http.get<StatsResponse>(`${this.baseUrl}/stats/requests`).pipe(
       catchError(this.handleError)
     );
   }
@@ -40,10 +63,17 @@ export class LocustService {
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Something went wrong; please try again later.';
-    if (error.error && error.error.message) {
-        console.error('An error occurred:', error.error.message);
-        errorMessage = error.error.message;
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.
+      console.error('An error occurred:', error.error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong.
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.error}`);
     }
+    // Return an observable with a user-facing error message.
     return throwError(() => new Error(errorMessage));
   }
 }

@@ -22,12 +22,12 @@
       </div>
       <button type="submit" name="submit" id="submit" [disabled]="!form.valid" class="btn btn-success mr-2">Start Test</button>
     </form>
-    <div class="form-group">
+    <!-- <div class="form-group">
       <button type="button" (click)="onStopTest(); $event.stopPropagation()" name="stop" id="stop" class="btn btn-danger mr-2">Stop Test</button>
       <button type="button" (click)="onGetStats(); $event.stopPropagation()" name="getStats" id="getStats" class="btn btn-primary mr-2">Get Stats</button>
       <button type="button" (click)="onResetStats(); $event.stopPropagation()" name="resetStats" id="resetStats" class="btn btn-warning mr-2">Reset Stats</button>
     </div>
-  </div>
+  </div> -->
 </div>
 
 <div class="card">
@@ -35,7 +35,9 @@
       Table Result
   </div>
   <div class="card-body">
-    <div>Test in progress...</div>
+  <!-- Progress Text -->
+  <div *ngIf="isTesting" class="alert alert-info">Test in progress...</div>
+
     <table class="table table-bordered">
       <thead>
       <tr>
@@ -56,21 +58,21 @@
       </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1.</td>
-          <td>Get</td>
-          <td>/</td>
-          <td>3858</td>
-          <td>0</td>
-          <td>21</td>
-          <td>35</td>
-          <td>38</td>
-          <td>21</td>
-          <td>4</td>
-          <td>38</td>
-          <td>20170</td>
-          <td>40.1</td>
-          <td>0</td>
+        <tr *ngFor="let stat of statsData; let i = index">
+          <td>{{ i + 1 }}.</td>
+          <td>{{ stat.method }}</td>
+          <td>{{ stat.name }}</td>
+          <td>{{ stat.num_requests }}</td>
+          <td>{{ stat.num_failures }}</td>
+          <td>{{ stat.median_response_time }}</td>
+          <td>{{ stat.ninetieth_response_time }}</td>
+          <td>{{ stat.ninety_ninth_response_time }}</td>
+          <td>{{ stat.avg_response_time }}</td>
+          <td>{{ stat.min_response_time }}</td>
+          <td>{{ stat.max_response_time }}</td>
+          <td>{{ stat.avg_content_length }}</td>
+          <td>{{ stat.current_rps }}</td>
+          <td>{{ stat.current_fail_per_sec }}</td>
         </tr>
       </tbody>
   </table>

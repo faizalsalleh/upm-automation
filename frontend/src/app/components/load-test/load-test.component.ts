@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LocustService } from '../../services/locust.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 interface Stat {
   avg_content_length: number;
@@ -24,6 +24,7 @@ interface Stat {
   templateUrl: './load-test.component.html',
   styleUrls: ['./load-test.component.scss']
 })
+
 export class LoadTestComponent {
   form: FormGroup;
   isTesting: boolean = false;
@@ -34,19 +35,38 @@ export class LoadTestComponent {
     this.form = this.fb.group({
       userCount: ['', Validators.required],
       spawnRate: ['', Validators.required],
-      host: ['', Validators.required]
+      host: ['', Validators.required],
+      testPaths: this.fb.array([this.fb.control('')])
     });
+  }
+
+  get testPaths() {
+    return this.form.get('testPaths') as FormArray;
+  }
+
+  addTestPath() {
+    this.testPaths.push(this.fb.control(''));
+  }
+
+  removeTestPath(index: number) {
+    this.testPaths.removeAt(index);
   }
 
   onStartTest(): void {
     if (this.form.valid) {
       this.isTesting = true;
-      const { userCount, spawnRate, host } = this.form.value;
-      this.locustService.startLoadTest(userCount, spawnRate, host).subscribe(response => {
+      const { userCount, spawnRate, host, testPaths } = this.form.value;
+      const fullUrls = testPaths.map((path: string) => host + path);
+
+      this.locustService.startLoadTest(userCount, spawnRate, fullUrls).subscribe(response => {
         console.log('Test started:', response);
+        // Calculate the test duration based on user count
+        const testDuration = this.calculateTestDuration(userCount);
+        // Wait for the test to complete before stopping and getting stats
         setTimeout(() => {
           this.onStopTest();
-        }, 5000);
+          this.onGetStats();
+        }, testDuration * 2000); // Convert seconds to milliseconds
       });
     }
   }
@@ -79,6 +99,18 @@ export class LoadTestComponent {
     this.locustService.resetStats().subscribe(response => {
       console.log('Stats reset:', response);
     });
+  }
+
+  calculateTestDuration(userCount: number): number {
+    if (userCount <= 10) {
+      return 5; // Duration in seconds for up to 10 users
+    } else if (userCount <= 50) {
+      return 15; // Duration in seconds for up to 50 users
+    } else if (userCount <= 100) {
+      return 30; // Duration in seconds for up to 100 users
+    } else {
+      return 60; // Duration in seconds for more than 100 users
+    }
   }
 
 // ...

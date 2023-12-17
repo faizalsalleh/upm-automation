@@ -42,3 +42,6 @@ testem.log
 Thumbs.db
 
 /backend/.env
+
+# Locust
+/frontend/src/app/services/__pycache__

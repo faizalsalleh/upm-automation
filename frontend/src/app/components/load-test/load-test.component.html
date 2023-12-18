@@ -6,23 +6,42 @@
     <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group">
         <label for="userCount">Number of users (peak concurrency)</label>
-        <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control">
+        <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control" value="10">
       </div>
       <div class="form-group">
         <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control">
+        <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control" value="11">
       </div>
       <div class="form-group">
         <label for="host">Host</label>
-        <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control">
+        <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control" value="https://www.upm.edu.my">
+      </div>
+      <!-- additional URL path -->
+      <div class="form-group">
+        <label>Paths</label><br>
+        <div formArrayName="testPaths" *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
+          <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')" value="/pelajar-734">
+          <div class="input-group-append">
+            <button (click)="removeTestPath(i)" type="button" class="btn btn-danger">Remove</button>
+          </div>
+        </div>
+        <button (click)="addTestPath()" type="button" class="btn btn-primary">Add Path</button>
       </div>
       <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
+      <button type="button" (click)="stopTest()" [disabled]="!isTesting" class="btn btn-danger mr-2">Stop Test</button>
     </form>
-    <div *ngIf="isTesting" class="alert alert-info mt-3">Test in progress...</div>
+    <div *ngIf="isTesting" class="card mt-3 p-3">
+      Testing on {{ currentTestUrl }} page
+      <div class="progress">
+        <div class="progress-bar bg-success" role="progressbar" [style.width]="progress + '%'" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+
+      <p class="mb-0">{{ countdown }} seconds remaining</p>
+    </div>
   </div>
 </div>
 
-<div class="card mt-4">
+<div class="card mt-4" *ngIf="showResults">
   <div class="card-header">
     Table Result
   </div>

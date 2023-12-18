@@ -1,0 +1,12 @@
+
+
+ec2-3-239-6-143.compute-1.amazonaws.com
+ubuntu
+D:\Dev\Project_Key\AWS\awskey.pem
+
+
+https://fsktm.upm.edu.my/
+/mengenai_kami-367
+/staf-1932
+/akademik-397
+/penyelidikan-361

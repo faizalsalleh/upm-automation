@@ -45,7 +45,8 @@
               "node_modules/admin-lte/plugins/jqvmap/jquery.vmap.min.js",
               "node_modules/admin-lte/plugins/jqvmap/maps/jquery.vmap.usa.js",
               "node_modules/admin-lte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js",
-              "node_modules/admin-lte/dist/js/adminlte.js"
+              "node_modules/admin-lte/dist/js/adminlte.js",
+              "node_modules/admin-lte/plugins/chart.js/Chart.min.js"
             ]
           },
           "configurations": {

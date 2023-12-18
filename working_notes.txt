@@ -1,5 +1,5 @@
 
-
+http://ec2-3-239-6-143.compute-1.amazonaws.com/automation/list.txt
 ec2-3-239-6-143.compute-1.amazonaws.com
 ubuntu
 D:\Dev\Project_Key\AWS\awskey.pem

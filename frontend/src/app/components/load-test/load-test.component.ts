@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LocustService } from '../../services/locust.service';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -22,24 +22,33 @@ interface Stat {
 @Component({
   selector: 'app-load-test',
   templateUrl: './load-test.component.html',
-  styleUrls: ['./load-test.component.scss']
+  styleUrls: ['./load-test.component.scss'],
 })
+
 export class LoadTestComponent {
   form: FormGroup;
   isTesting: boolean = false;
   individualTestResults: Stat[] = [];
   aggregatedResult: Stat | null = null;
-  countdown: number = 5; // Total countdown time in seconds
   progress: number = 100; // Progress bar percentage
   currentTestUrl: string = ''; // Track the current test URL
   showResults: boolean = false; // Control the visibility of the results table
+  countdown: number = 0; // Total countdown time in seconds
+
+  ngOnInit(): void {
+    this.updateServiceStatus();
+  }
+
+  // Add the serviceStatus property here
+  serviceStatus: 'running' | 'down' | 'unknown' = 'unknown';
 
   constructor(private locustService: LocustService, private fb: FormBuilder) {
     this.form = this.fb.group({
       userCount: ['', Validators.required],
       spawnRate: ['', Validators.required],
       host: ['', Validators.required],
-      testPaths: this.fb.array([this.fb.control('')])
+      testPaths: this.fb.array([this.fb.control('')]),
+      duration: ['5s', Validators.required]
     });
   }
 
@@ -58,50 +67,65 @@ export class LoadTestComponent {
   async onStartTest(): Promise<void> {
     if (this.form.valid) {
       this.isTesting = true;
-      this.showResults = true; // Show the results table when the test starts
-      const { userCount, spawnRate, host, testPaths } = this.form.value;
+      this.showResults = true;
+      const { userCount, spawnRate, host, testPaths, duration } = this.form.value;
 
       // Clear previous test results
       this.individualTestResults = [];
 
       for (const path of testPaths) {
         console.log(`Starting test for path: ${path}`);
-        await this.runTest(userCount, spawnRate, host, path);
+        await this.runTest(userCount, spawnRate, host, path, duration);
       }
 
       this.isTesting = false;
     }
   }
 
-  async runTest(userCount: number, spawnRate: number, host: string, path: string): Promise<void> {
+  async runTest(userCount: number, spawnRate: number, host: string, path: string, duration: string): Promise<void> {
     return new Promise((resolve) => {
       // Remove trailing slash from host if present
       const normalizedHost = host.endsWith('/') ? host.slice(0, -1) : host;
       const fullPath = normalizedHost + (path.startsWith('/') ? '' : '/') + path;
+
+      // Convert duration string to milliseconds
+      const durationMs = this.convertDurationToMilliseconds(duration);
+
       this.currentTestUrl = fullPath; // Update the current test URL
+
+
+      // Start the test
       this.locustService.startLoadTest(userCount, spawnRate, fullPath).subscribe(response => {
         console.log(`Test started for path ${fullPath}:`, response);
 
-        // Initialize countdown and progress
-        this.countdown = 5;
+        // Initialize progress
         this.progress = 100;
+        const startTime = Date.now();
 
         const interval = setInterval(() => {
-          this.countdown--;
-          this.progress -= 20; // Decrease progress bar by 20% each second
+          const elapsedTime = Date.now() - startTime;
+          this.progress = Math.max(0, 100 - (elapsedTime / durationMs) * 100);
 
-          if (this.countdown <= 0) {
+          // Calculate remaining time in seconds
+          const remainingTime = Math.ceil((durationMs - elapsedTime) / 1000);
+          this.countdown = Math.max(0, remainingTime); // Update countdown
+
+          if (elapsedTime >= durationMs) {
             clearInterval(interval);
-            this.locustService.stopLoadTest().subscribe(stopResponse => {
-              console.log('Test stopped:', stopResponse);
-              this.locustService.getStats().subscribe(stats => {
-                console.log('Current stats:', stats);
-                this.processStats(stats, path);
-                resolve();
-              });
-            });
+            this.stopTestAndFetchStats(path, resolve);
           }
         }, 1000); // Update every second
+      });
+    });
+  }
+
+  private stopTestAndFetchStats(path: string, resolve: () => void): void {
+    this.locustService.stopLoadTest().subscribe(stopResponse => {
+      console.log('Test stopped:', stopResponse);
+      this.locustService.getStats().subscribe(stats => {
+        console.log('Current stats:', stats);
+        this.processStats(stats, path);
+        resolve();
       });
     });
   }
@@ -133,6 +157,21 @@ export class LoadTestComponent {
       this.individualTestResults = [];
       this.aggregatedResult = null;
     });
+  }
+
+  convertDurationToMilliseconds(duration: string): number {
+    const match = duration.match(/(\d+)([hms])/);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      const unit = match[2];
+      switch (unit) {
+        case 'h': return value * 3600000;
+        case 'm': return value * 60000;
+        case 's': return value * 1000;
+        default: return 0;
+      }
+    }
+    return 0;
   }
 
   calculateAggregatedResults(): void {
@@ -189,6 +228,13 @@ export class LoadTestComponent {
 
     // Assign the calculated result to this.aggregatedResult
     this.aggregatedResult = initialAggregatedResult;
+  }
+
+  updateServiceStatus(): void {
+    this.locustService.checkServiceStatus().subscribe({
+      next: (response) => this.serviceStatus = response.status,
+      error: () => this.serviceStatus = 'down'
+    });
   }
 
 }

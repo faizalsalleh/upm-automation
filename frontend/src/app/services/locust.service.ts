@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 // Define the structure of the stats object as per your API response
 interface Stat {
@@ -76,4 +76,12 @@ export class LocustService {
     // Return an observable with a user-facing error message.
     return throwError(() => new Error(errorMessage));
   }
+
+  checkServiceStatus(): Observable<{ status: 'running' | 'down' }> {
+    return this.http.get(`${this.baseUrl}/stats/requests`).pipe(
+      map(() => ({ status: 'running' as 'running' })),
+      catchError(() => of({ status: 'down' as 'down' }))
+    );
+  }
+
 }

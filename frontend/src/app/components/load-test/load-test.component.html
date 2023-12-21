@@ -4,24 +4,24 @@
   </div>
   <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onStartTest()">
-      <div class="form-group">
+      <div class="form-group col-lg-6">
         <label for="userCount">Number of users (peak concurrency)</label>
         <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control" value="10">
       </div>
-      <div class="form-group">
+      <div class="form-group col-lg-6">
         <label for="spawnRate">Spawn rate (users started/second)</label>
         <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control" value="11">
       </div>
-      <div class="form-group">
+      <div class="form-group col-lg-6">
         <label for="duration">Duration (e.g. 5s, 3m, 2h, 1h20m, 3h30m10s, etc.)</label>
         <input formControlName="duration" id="duration" type="text" placeholder="Enter duration (e.g., 5s, 3m, 2h)" class="form-control">
       </div>
-      <div class="form-group">
+      <div class="form-group col-lg-6">
         <label for="host">Host</label>
         <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control" value="https://www.upm.edu.my">
       </div>
       <!-- additional URL path -->
-      <div class="form-group">
+      <div class="form-group col-lg-6">
         <label>Paths</label><br>
         <div formArrayName="testPaths" *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
           <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')" value="/pelajar-734">
@@ -31,8 +31,10 @@
         </div>
         <button (click)="addTestPath()" type="button" class="btn btn-primary">Add Path</button>
       </div>
-      <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
-      <button type="button" (click)="stopTest()" [disabled]="!isTesting" class="btn btn-danger mr-2">Stop Test</button>
+      <div class="form-group col-lg-12">
+        <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
+        <button type="button" (click)="stopTest()" [disabled]="!isTesting" class="btn btn-danger mr-2">Stop Test</button>
+      </div>
     </form>
     <div *ngIf="isTesting" class="card mt-3 p-3">
       Testing on {{ currentTestUrl }} page
@@ -41,6 +43,7 @@
       </div>
 
       <p class="mb-0">{{ countdown }} seconds remaining</p>
+      <p class="mb-0">Current Users: {{ currentUsers }}</p>
     </div>
   </div>
 </div>

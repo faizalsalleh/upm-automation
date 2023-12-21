@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 // Define the structure of the stats object as per your API response
 interface Stat {
@@ -34,6 +34,13 @@ export class LocustService {
   private baseUrl = 'http://localhost:8089';
 
   constructor(private http: HttpClient) { }
+
+  getRealTimeStats(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/stats/requests`).pipe(
+      tap(data => console.log('Fetched stats:', data)),
+      catchError(this.handleError)
+    );
+  }
 
   startLoadTest(userCount: number, spawnRate: number, host: string): Observable<any> {
     const body = `user_count=${userCount}&spawn_rate=${spawnRate}&host=${host}`;

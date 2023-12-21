@@ -25,22 +25,17 @@ interface Stat {
   styleUrls: ['./load-test.component.scss'],
 })
 
-export class LoadTestComponent {
+export class LoadTestComponent implements OnInit {
   form: FormGroup;
   isTesting: boolean = false;
   individualTestResults: Stat[] = [];
   aggregatedResult: Stat | null = null;
-  progress: number = 100; // Progress bar percentage
-  currentTestUrl: string = ''; // Track the current test URL
-  showResults: boolean = false; // Control the visibility of the results table
-  countdown: number = 0; // Total countdown time in seconds
-
-  ngOnInit(): void {
-    this.updateServiceStatus();
-  }
-
-  // Add the serviceStatus property here
+  progress: number = 100;
+  currentTestUrl: string = '';
+  showResults: boolean = false;
+  currentUsers: number = 0;
   serviceStatus: 'running' | 'down' | 'unknown' = 'unknown';
+  countdown: number = 0;
 
   constructor(private locustService: LocustService, private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -50,6 +45,23 @@ export class LoadTestComponent {
       testPaths: this.fb.array([this.fb.control('')]),
       duration: ['5s', Validators.required]
     });
+  }
+
+  ngOnInit(): void {
+    this.updateServiceStatus();
+    this.startStatsUpdate();
+  }
+
+  startStatsUpdate() {
+    const statsInterval = setInterval(() => {
+      if (this.isTesting) {
+        this.locustService.getRealTimeStats().subscribe(stats => {
+          this.currentUsers = stats.user_count; // Update the number of current users
+        });
+      } else {
+        clearInterval(statsInterval); // Stop updating stats when testing is not active
+      }
+    }, 2000); // Fetch stats every 2 seconds (adjust as needed)
   }
 
   get testPaths() {
@@ -70,60 +82,56 @@ export class LoadTestComponent {
       this.showResults = true;
       const { userCount, spawnRate, host, testPaths, duration } = this.form.value;
 
-      // Clear previous test results
       this.individualTestResults = [];
-
       for (const path of testPaths) {
-        console.log(`Starting test for path: ${path}`);
         await this.runTest(userCount, spawnRate, host, path, duration);
       }
-
       this.isTesting = false;
     }
   }
 
   async runTest(userCount: number, spawnRate: number, host: string, path: string, duration: string): Promise<void> {
     return new Promise((resolve) => {
-      // Remove trailing slash from host if present
       const normalizedHost = host.endsWith('/') ? host.slice(0, -1) : host;
       const fullPath = normalizedHost + (path.startsWith('/') ? '' : '/') + path;
-
-      // Convert duration string to milliseconds
       const durationMs = this.convertDurationToMilliseconds(duration);
 
-      this.currentTestUrl = fullPath; // Update the current test URL
-
-
-      // Start the test
+      this.currentTestUrl = fullPath;
       this.locustService.startLoadTest(userCount, spawnRate, fullPath).subscribe(response => {
-        console.log(`Test started for path ${fullPath}:`, response);
-
-        // Initialize progress
         this.progress = 100;
         const startTime = Date.now();
+
+        // Initialize countdown based on duration
+        this.countdown = Math.ceil(durationMs / 1000);
 
         const interval = setInterval(() => {
           const elapsedTime = Date.now() - startTime;
           this.progress = Math.max(0, 100 - (elapsedTime / durationMs) * 100);
 
-          // Calculate remaining time in seconds
-          const remainingTime = Math.ceil((durationMs - elapsedTime) / 1000);
-          this.countdown = Math.max(0, remainingTime); // Update countdown
+          // Update countdown
+          this.countdown = Math.ceil((durationMs - elapsedTime) / 1000);
+
+          // Fetch current users
+          this.updateCurrentUsers();
 
           if (elapsedTime >= durationMs) {
             clearInterval(interval);
             this.stopTestAndFetchStats(path, resolve);
           }
-        }, 1000); // Update every second
+        }, 1000);
       });
+    });
+  }
+
+  private updateCurrentUsers(): void {
+    this.locustService.getRealTimeStats().subscribe(stats => {
+      this.currentUsers = stats.user_count; // Update the number of current users
     });
   }
 
   private stopTestAndFetchStats(path: string, resolve: () => void): void {
     this.locustService.stopLoadTest().subscribe(stopResponse => {
-      console.log('Test stopped:', stopResponse);
       this.locustService.getStats().subscribe(stats => {
-        console.log('Current stats:', stats);
         this.processStats(stats, path);
         resolve();
       });
@@ -132,10 +140,7 @@ export class LoadTestComponent {
 
   processStats(stats: any, path: string): void {
     const filteredStats = stats.stats.filter((stat: Stat) => stat.name !== 'Aggregated');
-
-    // Update the name of each stat
     filteredStats.forEach((stat: Stat) => {
-      // Use the path as the name directly
       stat.name = path;
     });
 
@@ -145,7 +150,6 @@ export class LoadTestComponent {
 
   stopTest(): void {
     this.locustService.stopLoadTest().subscribe(response => {
-      console.log('Test stopped:', response);
       this.onResetStats();
       this.isTesting = false;
     });
@@ -153,7 +157,6 @@ export class LoadTestComponent {
 
   onResetStats(): void {
     this.locustService.resetStats().subscribe(response => {
-      console.log('Stats reset:', response);
       this.individualTestResults = [];
       this.aggregatedResult = null;
     });

@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { ProjectService } from '../../../services/project.service';
 
 @Component({
   selector: 'app-project-create',
@@ -7,12 +8,20 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./project-create.component.scss']
 })
 export class ProjectCreateComponent implements OnInit {
-  projectForm!: FormGroup;
+  @ViewChild('alertDiv') alertDiv!: ElementRef;
+  projectForm!: FormGroup; // Using the definite assignment assertion operator
+  alertMessage: string = '';
+  alertType: 'error' | 'info' | 'warning' | 'success' = 'info';
 
-  constructor(private formBuilder: FormBuilder) { }
+
+  constructor(private fb: FormBuilder, private projectService: ProjectService) { }
 
   ngOnInit(): void {
-    this.projectForm = this.formBuilder.group({
+    this.initializeForm();
+  }
+
+  initializeForm(): void {
+    this.projectForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
       avg_response_time: [''],
@@ -25,8 +34,27 @@ export class ProjectCreateComponent implements OnInit {
 
   onSubmit(): void {
     if (this.projectForm.valid) {
-      console.log(this.projectForm.value);
-      // Handle form submission logic here
+      this.projectService.addProject(this.projectForm.value).subscribe({
+        next: (response) => {
+          this.alertMessage = 'Project created successfully';
+          this.alertType = 'success';
+          //setTimeout(() => this.alertMessage = '', 5000); // Hide alert after 5 seconds
+          window.scrollTo(0, 0); // Scroll to the top of the window
+          // ... other success logic ...
+        },
+        error: (error) => {
+          this.alertMessage = error.error.message;
+          this.alertType = 'error';
+          //setTimeout(() => this.alertMessage = '', 5000); // Hide alert after 5 seconds
+          window.scrollTo(0, 0); // Scroll to the top of the window
+          // ... other error handling logic ...
+        }
+      });
+
+      if (this.alertDiv) {
+        this.alertDiv.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
     }
   }
 }

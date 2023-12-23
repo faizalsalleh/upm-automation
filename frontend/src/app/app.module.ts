@@ -19,6 +19,7 @@ import { ProjectIndexComponent } from './components/project/project-index/projec
 import { ProjectCreateComponent } from './components/project/project-create/project-create.component';
 import { ProjectShowComponent } from './components/project/project-show/project-show.component';
 import { ProjectUpdateComponent } from './components/project/project-update/project-update.component';
+import { AlertComponent } from './components/shared/alert/alert.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/main', pathMatch: 'full' }, // default route
@@ -38,7 +39,8 @@ const routes: Routes = [
     MainComponent,
     LoadTestComponent,
     ProjectIndexComponent,
-    ProjectCreateComponent
+    ProjectCreateComponent,
+    AlertComponent
   ],
   imports: [
     HttpClientModule,

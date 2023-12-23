@@ -4,26 +4,27 @@
     <a routerLink="/project/create" class="btn btn-primary mr-2 float-right">Create Project</a>
   </div>
   <div class="card-body">
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Avg. Response Time</th>
-            <th>Error Percentage</th>
-            <th>CPU Usage</th>
-            <th>Memory Usage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Avg. Response Time</th>
+          <th>Error Percentage</th>
+          <th>CPU Usage</th>
+          <th>Memory Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of projects; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ project.name }}</td>
+          <td>{{ project.avg_response_time }}</td>
+          <td>{{ project.error_percentage }}</td>
+          <td>{{ project.cpu_usage }}</td>
+          <td>{{ project.memory_usage }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -1,0 +1,27 @@
+<!-- <div #alertDiv *ngIf="message" class="alert" [ngClass]="{
+  'alert-danger': type === 'error',
+  'alert-info': type === 'info',
+  'alert-warning': type === 'warning',
+  'alert-success': type === 'success'
+}" role="alert">
+  <button type="button" class="close" (click)="hideAlert()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  {{ message }}
+</div> -->
+<div #alertDiv *ngIf="message" class="alert" [ngClass]="{
+  'alert-danger': type === 'error',
+  'alert-info': type === 'info',
+  'alert-warning': type === 'warning',
+  'alert-success': type === 'success'
+}" role="alert">
+  <button type="button" class="close" (click)="hideAlert()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <i class="icon fas" [ngClass]="{
+    'fa-ban': type === 'error',
+    'fa-info-circle': type === 'info',
+    'fa-exclamation-triangle': type === 'warning',
+    'fa-check-circle': type === 'success'
+  }"></i> {{ message }}
+</div>

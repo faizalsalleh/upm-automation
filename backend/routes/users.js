@@ -37,14 +37,14 @@ router.post('/register', async (req, res) => {
 
     // Create user object
     const user = {
-        userId: uuidv4(),
+        user_id: uuidv4(),
         username: username,
         password: hashedPassword,
         email: email,
         role: role,
         status: 'active',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        created_at: new Date(),
+        updated_at: new Date()
     };
 
     // Save the user to the database

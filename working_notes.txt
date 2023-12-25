@@ -10,3 +10,70 @@ https://fsktm.upm.edu.my/
 /staf-1932
 /akademik-397
 /penyelidikan-361
+
+load-test.component.html
+load-test.component.ts
+
+
+http://ec2-3-239-6-143.compute-1.amazonaws.com/phpmyadmin/
+
+Username: root
+pwd: 4dm1n@aws
+
+
+http://ec2-3-239-6-143.compute-1.amazonaws.com/xplorer/
+
+eXtplorer File Manager
+Username: admin
+pwd: 4dm1n@aws
+
+git ls-tree -r main --name-only
+
+Automation Dev 2
+https://chat.openai.com/share/ec0d5ef4-a06e-48a6-83c3-0dfcfc641d6f
+
+ok this my latest working files in the directory. i have divided into two directories which is frontend and backend. i also follow the MVC pattern for this development:
+
+
+CREATING COLLECTION AND INSERT INITIAL DATA
+===========================================
+mongosh
+use automation
+db.createCollection("scenarios")
+db.scenarios.insertOne({ name: "Sample Project", description: "This is a sample project." })
+db.scenarios.insertOne({
+  project_id: "65887788a846e36356a0555c",
+  name: "Scenario 1",
+  description: "Scenario 1 Description",
+  user_id: "658733068fd542d8d32afffe",
+  created_at: new Date(),
+  updated_at: new Date()
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

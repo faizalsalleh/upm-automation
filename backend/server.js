@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routes/users');
 const projectRoutes = require('./routes/project');
+const scenarioRoutes = require('./routes/scenario');
 const { MongoClient } = require('mongodb');
 
 const app = express();
@@ -21,7 +22,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
+app.use('/api/project', projectRoutes);
+app.use('/api/scenario', scenarioRoutes);
 
 // MongoDB connection string for a local instance
 const uri = "mongodb://localhost:27017/automation";

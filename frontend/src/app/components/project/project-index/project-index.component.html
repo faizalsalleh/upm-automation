@@ -1,3 +1,4 @@
+<app-alert [message]="alertMessage" [type]="alertType"></app-alert>
 <div class="card">
   <div class="card-header">
     Project List
@@ -18,7 +19,7 @@
       <tbody>
         <tr *ngFor="let project of projects; let i = index">
           <td>{{ i + 1 }}</td>
-          <td>{{ project.name }}</td>
+          <td><a [routerLink]="['/project/show', project._id]">{{ project.name }}</a></td>
           <td>{{ project.avg_response_time }}</td>
           <td>{{ project.error_percentage }}</td>
           <td>{{ project.cpu_usage }}</td>

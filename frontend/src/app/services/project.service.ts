@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ProjectService {
-  private baseUrl = 'http://localhost:3000/api/projects';
+  private baseUrl = 'http://localhost:3000/api/project';
 
   constructor(private http: HttpClient) { }
 
@@ -17,5 +17,13 @@ export class ProjectService {
   getAllProjects(): Observable<any> {
     return this.http.get(`${this.baseUrl}`);
   }
-  
+
+  getProjectById(projectId: string): Observable<any> {
+    console.log('projectId in project.service.ts:', projectId);
+    return this.http.get<any>(`${this.baseUrl}/${projectId}`);
+  }
+
+  getScenariosForProject(projectId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/scenario/${projectId}`);
+  }
 }

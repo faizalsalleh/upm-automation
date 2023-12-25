@@ -10,4 +10,20 @@ export class ScenarioService {
 
   constructor(private http: HttpClient) { }
 
+  addScenario(scenarioData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/add`, scenarioData);
+  }
+
+  getAllScenarios(): Observable<any> {
+    return this.http.get(`${this.baseUrl}`);
+  }
+
+  getScenarioById(scenarioId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${scenarioId}`);
+  }
+
+  getTestCasesForScenario(scenarioId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/testcase/${scenarioId}`);
+  }
+
 }

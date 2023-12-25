@@ -5,6 +5,9 @@ import { LoadTestComponent } from './components/load-test/load-test.component';
 import { ProjectIndexComponent } from './components/project/project-index/project-index.component';
 import { ProjectCreateComponent } from './components/project/project-create/project-create.component';
 import { ProjectShowComponent } from './components/project/project-show/project-show.component';
+import { IndexScenarioComponent } from './components/scenario/index-scenario/index-scenario.component';
+import { CreateScenarioComponent } from './components/scenario/create-scenario/create-scenario.component';
+import { ShowScenarioComponent } from './components/scenario/show-scenario/show-scenario.component';
 
 
 const routes: Routes = [
@@ -14,6 +17,10 @@ const routes: Routes = [
   { path: 'project', component: ProjectIndexComponent },
   { path: 'project/create', component: ProjectCreateComponent },
   { path: 'project/show/:id', component: ProjectShowComponent },
+  { path: 'scenario', component: IndexScenarioComponent },
+  { path: 'scenario/create', component: CreateScenarioComponent },
+  { path: 'scenario/show/:id', component: ShowScenarioComponent },
+
 ];
 
 @NgModule({

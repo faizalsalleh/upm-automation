@@ -20,7 +20,8 @@ exports.createScenario = async (req, res) => {
         const scenariosCollection = await connectDB();
         const scenarioData = {
             ...req.body,
-            projectId: req.body.projectId,
+            projectId: ObjectId(req.body.projectId),
+            user_id: ObjectId(req.body.user_id),
             created_at: new Date(),
             updated_at: new Date()
         };
@@ -70,10 +71,10 @@ exports.getScenarioById = async (req, res) => {
 exports.getAllScenariosForProject = async (req, res) => {
   try {
       const scenariosCollection = await connectDB();
-      const projectId = req.params.projectId;  // Keep projectId as a string
+      const projectId = new ObjectId(req.params.projectId); // Convert string to ObjectId
       console.log('projectId in scenarioController.js:', projectId);
 
-      const scenarios = await scenariosCollection.find({ project_id: projectId })  // Use projectId directly as a string
+      const scenarios = await scenariosCollection.find({ project_id: projectId }) // Use projectId as ObjectId
                                                 .sort({ created_at: -1 })
                                                 .toArray();
       res.status(200).json(scenarios);
@@ -82,6 +83,7 @@ exports.getAllScenariosForProject = async (req, res) => {
       res.status(500).json({ message: 'Error retrieving scenarios', error: err.message });
   }
 };
+
 
 
 // Update a scenario

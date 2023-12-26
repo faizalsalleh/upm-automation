@@ -19,6 +19,10 @@ import { CreateScenarioComponent } from './components/scenario/create-scenario/c
 import { IndexScenarioComponent } from './components/scenario/index-scenario/index-scenario.component';
 import { ShowScenarioComponent } from './components/scenario/show-scenario/show-scenario.component';
 import { UpdateScenarioComponent } from './components/scenario/update-scenario/update-scenario.component';
+import { CreateTestComponent } from './components/test-case/create-test/create-test.component';
+import { IndexTestComponent } from './components/test-case/index-test/index-test.component';
+import { ShowTestComponent } from './components/test-case/show-test/show-test.component';
+import { UpdateTestComponent } from './components/test-case/update-test/update-test.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +40,11 @@ import { UpdateScenarioComponent } from './components/scenario/update-scenario/u
     CreateScenarioComponent,
     IndexScenarioComponent,
     ShowScenarioComponent,
-    UpdateScenarioComponent
+    UpdateScenarioComponent,
+    CreateTestComponent,
+    IndexTestComponent,
+    ShowTestComponent,
+    UpdateTestComponent
   ],
   imports: [
     HttpClientModule,

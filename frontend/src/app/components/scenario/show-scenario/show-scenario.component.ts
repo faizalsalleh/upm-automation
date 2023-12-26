@@ -48,7 +48,7 @@ export class ShowScenarioComponent implements OnInit {
     });
   }
 
-  deleteProject(projectId: number) {
+  deleteScenario(scenarioId: string) {
     // Implement project deletion logic
   }
 }

@@ -40,15 +40,50 @@ CREATING COLLECTION AND INSERT INITIAL DATA
 mongosh
 use automation
 db.createCollection("scenarios")
+db.createCollection("test_case_data")
 db.scenarios.insertOne({ name: "Sample Project", description: "This is a sample project." })
-db.scenarios.insertOne({
-  project_id: "65887788a846e36356a0555c",
-  name: "Scenario 1",
-  description: "Scenario 1 Description",
-  user_id: "658733068fd542d8d32afffe",
+
+db.test_case_data.insertOne({
+  test_case_id: ObjectId("6589d3c9ccd125beba625909"),
+  name: "/",
+  request: 9,
+  fail: 0,
+  median: 61,
+  percent_90: 390,
+  percent_99: 390,
+  average: 130,
+  min: 36,
+  max: 392,
+  average_size: 138237,
+  current_rps: 0.83,
+  current_failure: 0,
+  user_id: ObjectId("658733068fd542d8d32afffe"),
   created_at: new Date(),
   updated_at: new Date()
 })
+
+db.scenarios.insertOne({
+  project_id: ObjectId("65887788a846e36356a0555c"),
+  name: "Scenario 1",
+  description: "Scenario 1 Description",
+  user_id: ObjectId("658733068fd542d8d32afffe"),
+  created_at: new Date(),
+  updated_at: new Date()
+})
+
+db.test_cases.insertOne({
+  scenario_id: ObjectId("658941f4c4d07b2f7b369929"),
+  name: "Test Case 2",
+  description: "Test Case 2 Description",
+  user_id: ObjectId("658733068fd542d8d32afffe"),
+  created_at: new Date(),
+  updated_at: new Date()
+})
+
+
+db.scenarios.find({}, { project_id: '65887788a846e36356a0555c' }).limit(5).pretty()
+db.scenarios.find({ project_id: ObjectId('65887788a846e36356a0555c') }).pretty()
+
 
 
 

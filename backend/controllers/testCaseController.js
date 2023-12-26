@@ -9,6 +9,11 @@ async function connectDB() {
     return client.db("automation").collection("test_cases");
 }
 
+async function connectDB2() {
+    await client.connect();
+    return client.db("automation").collection("test_case_data");
+}
+
 // Create a new test case
 exports.createTestCase = async (req, res) => {
     try {
@@ -52,6 +57,21 @@ exports.getAllTestCasesForScenario = async (req, res) => {
   } catch (err) {
       console.error('Error retrieving test cases:', err);
       res.status(500).json({ message: 'Error retrieving test cases', error: err.message });
+  }
+};
+
+// Get all test case results
+exports.getAllTestCaseResults = async (req, res) => {
+  try {
+      const testCaseResultsCollection = await connectDB2();
+      const testCaseId = new ObjectId(req.params.testCaseId); // Convert string to ObjectId
+      const testCaseResults = await testCaseResultsCollection.find({ test_case_id: testCaseId })
+                                                .sort({ created_at: -1 })
+                                                .toArray();
+      res.status(200).json(testCaseResults);
+  } catch (err) {
+      console.error('Error retrieving test case results:', err);
+      res.status(500).json({ message: 'Error retrieving case results', error: err.message });
   }
 };
 

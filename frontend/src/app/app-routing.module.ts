@@ -28,7 +28,7 @@ const routes: Routes = [
   { path: 'scenario/show/:id', component: ShowScenarioComponent },
   { path: 'scenario/update/:id', component: UpdateScenarioComponent },
   { path: 'testcase', component: IndexTestComponent },
-  { path: 'testcase/create', component: CreateTestComponent },
+  { path: 'testcase/create/:id', component: CreateTestComponent },
   { path: 'testcase/show/:id', component: ShowTestComponent },
   { path: 'testcase/update/:id', component: UpdateTestComponent },
 ];

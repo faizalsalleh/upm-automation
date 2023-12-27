@@ -1,1 +1,192 @@
-<p>create-test works!</p>
+<ng-container *ngIf="serviceStatus === 'down'">
+  <div class="alert alert-danger">Locust service is down. Please check the service.</div>
+</ng-container>
+<app-alert [message]="alertMessage" [type]="alertType"></app-alert>
+<div class="card">
+  <div class="card-header h5 font-weight-bold">
+    Create Test Case
+  </div>
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+            <label for="name" class="form-label">Case Name</label>
+            <input formControlName="name" type="text" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea formControlName="description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="mt-4 h5 font-weight-bold">Test Information</div>
+      <div class="form-group col-lg-6">
+        <label for="userCount">Number of users (peak concurrency)</label>
+        <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control" value="10">
+      </div>
+      <div class="form-group col-lg-6">
+        <label for="spawnRate">Spawn rate (users started/second)</label>
+        <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control" value="11">
+      </div>
+      <div class="form-group col-lg-6">
+        <label for="duration">Duration (e.g. 5s, 3m, 2h, 1h20m, 3h30m10s, etc.)</label>
+        <input formControlName="duration" id="duration" type="text" placeholder="Enter duration (e.g., 5s, 3m, 2h)" class="form-control">
+      </div>
+      <div class="form-group col-lg-6">
+        <label for="host">Host</label>
+        <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control" value="https://www.upm.edu.my">
+      </div>
+      <!-- additional URL path -->
+      <div class="form-group col-lg-6">
+        <label>Paths</label><br>
+        <div formArrayName="testPaths" *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
+          <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')" value="/pelajar-734">
+          <div class="input-group-append">
+            <button (click)="removeTestPath(i)" type="button" class="btn btn-danger">Remove</button>
+          </div>
+        </div>
+        <button (click)="addTestPath()" type="button" class="btn btn-primary">Add Path</button>
+      </div>
+      <div class="form-group col-lg-12">
+        <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
+        <button type="button" (click)="stopTest()" [disabled]="!isTesting" class="btn btn-danger mr-2">Stop Test</button>
+      </div>
+    </form>
+    <div *ngIf="isTesting" class="card mt-3 p-3">
+      Testing on {{ currentTestUrl }} page
+      <div class="progress">
+        <div class="progress-bar bg-success" role="progressbar" [style.width]="progress + '%'" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+
+      <p class="mb-0">{{ countdown }} seconds remaining</p>
+      <p class="mb-0">Current Users: {{ currentUsers }}</p>
+    </div>
+</div>
+</div>
+
+<div class="card mt-4" *ngIf="showResults">
+  <div class="card-header">
+    Table Result
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered" *ngIf="individualTestResults.length > 0; else noDataTemplate">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Name (Page)</th>
+          <th># Requests</th>
+          <th># Fails</th>
+          <th>Median (ms)</th>
+          <th>90%ile (ms)</th>
+          <th>99%ile (ms)</th>
+          <th>Average (ms)</th>
+          <th>Min (ms)</th>
+          <th>Max (ms)</th>
+          <th>Average Size (bytes)</th>
+          <th>Current RPS</th>
+          <th>Current Failures/s</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stat of individualTestResults; let i = index">
+          <td>{{ i + 1 }}.</td>
+          <td>{{ stat.method }}</td>
+          <td>{{ stat.name }}</td>
+          <td>{{ stat.num_requests }}</td>
+          <td>{{ stat.num_failures }}</td>
+          <td>{{ stat.median_response_time }}</td>
+          <td>{{ stat.ninetieth_response_time }}</td>
+          <td>{{ stat.ninety_ninth_response_time }}</td>
+          <td>{{ stat.avg_response_time }}</td>
+          <td>{{ stat.min_response_time }}</td>
+          <td>{{ stat.max_response_time }}</td>
+          <td>{{ stat.avg_content_length }}</td>
+          <td>{{ stat.current_rps }}</td>
+          <td>{{ stat.current_fail_per_sec }}</td>
+        </tr>
+        <tr *ngIf="aggregatedResult">
+          <td colspan="3">Aggregated</td>
+          <td>{{ aggregatedResult!.num_requests }}</td>
+          <td>{{ aggregatedResult!.num_failures }}</td>
+          <td>{{ aggregatedResult!.median_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.ninetieth_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.ninety_ninth_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.avg_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.min_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.max_response_time | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.avg_content_length | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.current_rps | number:'1.0-3' }}</td>
+          <td>{{ aggregatedResult!.current_fail_per_sec | number:'1.0-3' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noDataTemplate>
+      <div class="alert alert-warning">No data available yet.</div>
+    </ng-template>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header h5 font-weight-bold">
+    Scenario Detail
+    <!-- <button (click)="deleteScenario(scenario._id)" class="btn btn-danger btn-sm float-right">Remove</button>
+    <a [routerLink]="['/scenario/edit', scenario._id]" class="btn btn-primary btn-sm mr-2 float-right">Edit</a> -->
+  </div>
+  <div class="card-body">
+    <!--begin::Content-->
+    <h4 class="card-title font-weight-bold">{{ scenario.name }}</h4>
+    <p class="card-text">{{ scenario.description }}</p>
+    <!--end::Content-->
+</div>
+</div>
+
+<div class="card">
+  <div class="card-header h5 font-weight-bold">
+    Project Detail
+  </div>
+  <div class="card-body">
+    <!--begin::Content-->
+    <h4 class="card-title font-weight-bold">{{ project.name }}</h4>
+    <p class="card-text">{{ project.description }}</p>
+    <div class="col-lg-12 card-title pt-3 h5 pl-0 font-weight-bold">Acceptance Criteria</div>
+    <div class="row">
+      <div class="col-lg-6">
+        <strong>Avg. Response Time:</strong>
+        <span> {{ project.avg_response_time }} ms</span>
+      </div>
+      <div class="col-lg-6">
+        <strong>Error Percentage:</strong>
+        <span> {{ project.error_percentage }}%</span>
+      </div>
+      <div class="col-lg-6">
+        <strong>CPU Usage:</strong>
+        <span> {{ project.cpu_usage }}%</span>
+      </div>
+      <div class="col-lg-6">
+        <strong>Memory Usage:</strong>
+        <span> {{ project.memory_usage }}</span>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-lg-6">
+        <strong>Created by:</strong>
+        <span></span>
+      </div>
+      <div class="col-lg-6">
+        <strong>Date:</strong>
+        <span></span>
+      </div>
+    </div>
+    <!--end::Content-->
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header h5 font-weight-bold">
+    Performance Test Detail
+  </div>
+  <div class="card-body">
+    <!--begin::Content-->
+    <p class="card-text">{{ project.test_detail }}</p>
+    <!--end::Content-->
+</div>
+</div>

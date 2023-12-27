@@ -40,11 +40,13 @@ CREATING COLLECTION AND INSERT INITIAL DATA
 mongosh
 use automation
 db.createCollection("scenarios")
+db.createCollection("test_cases")
 db.createCollection("test_case_data")
 db.scenarios.insertOne({ name: "Sample Project", description: "This is a sample project." })
 
 db.test_case_data.insertOne({
   test_case_id: ObjectId("6589d3c9ccd125beba625909"),
+  type: "GET",
   name: "/",
   request: 9,
   fail: 0,
@@ -73,8 +75,12 @@ db.scenarios.insertOne({
 
 db.test_cases.insertOne({
   scenario_id: ObjectId("658941f4c4d07b2f7b369929"),
-  name: "Test Case 2",
-  description: "Test Case 2 Description",
+  name: "Test Case 1",
+  description: "Test Case 1 Description",
+  user_num: 2,
+  spawn_rate: 1,
+  duration: "5s",
+  host: "https://www.upm.edu.my",
   user_id: ObjectId("658733068fd542d8d32afffe"),
   created_at: new Date(),
   updated_at: new Date()

@@ -17,13 +17,13 @@ export class ProjectIndexComponent implements OnInit {
 
   ngOnInit(): void {
     const navigation = this.router.getCurrentNavigation();
-      const alertInfo = this.alertService.getAlert();
-      this.alertMessage = alertInfo.message;
-      this.alertType = alertInfo.type;
-      console.log('Alert Message:', this.alertMessage);
+    const alertInfo = this.alertService.getAlert();
+    this.alertMessage = alertInfo.message;
+    this.alertType = alertInfo.type;
+    console.log('Alert Message:', this.alertMessage);
 
-      // Clear the alert message in the service after retrieving it
-      this.alertService.clearAlert();
+    // Clear the alert message in the service after retrieving it
+    this.alertService.clearAlert();
 
     this.projectService.getAllProjects().subscribe({
       next: (data) => this.projects = data,

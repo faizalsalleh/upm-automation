@@ -1,3 +1,4 @@
+<app-alert [message]="alertMessage" [type]="alertType"></app-alert>
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Scenario Detail
@@ -15,6 +16,7 @@
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Test Case
+    <a routerLink="/testcase/create/{{ scenario._id }}" class="btn btn-primary mr-2 float-right">Create Test Case</a>
   </div>
   <div class="card-body">
     <!--begin::Content-->

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { TestCaseService } from '../../../services/test-case.service';
+import { TestCaseResultService } from '../../../services/test-case-result.service';
 
 @Component({
   selector: 'app-show-test',
@@ -21,16 +22,17 @@ export class ShowTestComponent implements OnInit {
     private router: Router,
     private projectService: ProjectService,
     private scenarioService: ScenarioService,
-    private testCaseService: TestCaseService
+    private testCaseService: TestCaseService,
+    private testCaseResultService: TestCaseResultService
   ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      const testcaseId = params['id'];
+      const testCaseId = params['id'];
 
-      if (testcaseId) {
-        //console.log('testcaseId: ', testcaseId);
-        this.testCaseService.getTestCaseById(testcaseId).subscribe((data: any) => {
+      if (testCaseId) {
+        //console.log('testCaseId: ', testCaseId);
+        this.testCaseService.getTestCaseById(testCaseId).subscribe((data: any) => {
           this.testCase = data;
           const scenarioId = data.scenario_id;
 
@@ -50,7 +52,7 @@ export class ShowTestComponent implements OnInit {
           }
         });
 
-        this.testCaseService.getAllTestCaseResults(testcaseId).subscribe((data: any[]) => {
+        this.testCaseResultService.getAllTestCaseResultsByTestCaseId(testCaseId).subscribe((data: any[]) => {
           this.testCaseResults = data;
         });
       } else {
@@ -59,7 +61,7 @@ export class ShowTestComponent implements OnInit {
     });
   }
 
-  deleteTestCase(testcaseId: string) {
+  deleteTestCase(testCaseId: string) {
     // Implement project deletion logic
   }
 }

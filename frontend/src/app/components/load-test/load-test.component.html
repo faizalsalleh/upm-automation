@@ -1,16 +1,16 @@
 <div class="card">
   <div class="card-header">
-    Start New Load Test
+    <div class="ml-2 h5 font-weight-bold">{{ testCase?.name }}</div>
   </div>
   <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group col-lg-6">
         <label for="userCount">Number of users (peak concurrency)</label>
-        <input formControlName="userCount" id="userCount" type="number" placeholder="Number of users" class="form-control" value="10">
+        <input formControlName="user_num" id="user_num" type="number" placeholder="Number of users" class="form-control" value="10">
       </div>
       <div class="form-group col-lg-6">
         <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input formControlName="spawnRate" id="spawnRate" type="number" placeholder="Spawn rate" class="form-control" value="11">
+        <input formControlName="spawn_rate" id="spawn_rate" type="number" placeholder="Spawn rate" class="form-control" value="11">
       </div>
       <div class="form-group col-lg-6">
         <label for="duration">Duration (e.g. 5s, 3m, 2h, 1h20m, 3h30m10s, etc.)</label>
@@ -31,8 +31,8 @@
         </div>
         <button (click)="addTestPath()" type="button" class="btn btn-primary">Add Path</button>
       </div>
-      <div class="form-group col-lg-12">
-        <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-success mr-2">Start Test</button>
+      <div class="form-group col-lg-6">
+        <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-warning mr-2">Start Test</button>
         <button type="button" (click)="stopTest()" [disabled]="!isTesting" class="btn btn-danger mr-2">Stop Test</button>
       </div>
     </form>
@@ -57,8 +57,9 @@
 </ng-container> -->
 
 <div class="card mt-4" *ngIf="showResults">
-  <div class="card-header">
+  <div class="card-header h5 font-weight-bold">
     Table Result
+    <button type="button" class="btn btn-success float-right" (click)="saveTestResults()" [disabled]="!showResults">Save Results</button>
   </div>
   <div class="card-body">
     <table class="table table-bordered" *ngIf="individualTestResults.length > 0; else noDataTemplate">

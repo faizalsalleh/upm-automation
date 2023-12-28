@@ -4,24 +4,24 @@
   </div>
   <div class="card-body">
     <!--begin::Content-->
-    <h4 class="card-title font-weight-bold">{{ testCase.name }}</h4>
-    <p class="card-text">{{ testCase.description }}</p>
+    <h4 class="card-title font-weight-bold">{{ testCase?.name }}</h4>
+    <p class="card-text">{{ testCase?.description }}</p>
     <div class="row">
       <div class="col-lg-6">
         <strong>Host:</strong>
-        <span><a href="{{ testCase.host }}" target="_blank"> {{ testCase.host }}</a></span>
+        <span><a href="{{ testCase?.host }}" target="_blank"> {{ testCase?.host }}</a></span>
       </div>
       <div class="col-lg-6">
         <strong>Number of users (peak concurrency):</strong>
-        <span> {{ testCase.user_num }}</span>
+        <span> {{ testCase?.user_num }}</span>
       </div>
       <div class="col-lg-6">
         <strong>Duration:</strong>
-        <span> {{ testCase.duration }}</span>
+        <span> {{ testCase?.duration }}</span>
       </div>
       <div class="col-lg-6">
         <strong>Spawn rate (users started/second):</strong>
-        <span> {{ testCase.spawn_rate }}</span>
+        <span> {{ testCase?.spawn_rate }}</span>
       </div>
     </div>
     <hr>
@@ -74,13 +74,13 @@
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Scenario Detail
-    <!-- <button (click)="deleteScenario(scenario._id)" class="btn btn-danger btn-sm float-right">Remove</button>
-    <a [routerLink]="['/scenario/edit', scenario._id]" class="btn btn-primary btn-sm mr-2 float-right">Edit</a> -->
+    <!-- <button (click)="deleteScenario(scenario?._id)" class="btn btn-danger btn-sm float-right">Remove</button>
+    <a [routerLink]="['/scenario/edit', scenario?._id]" class="btn btn-primary btn-sm mr-2 float-right">Edit</a> -->
   </div>
   <div class="card-body">
     <!--begin::Content-->
-    <h4 class="card-title font-weight-bold">{{ scenario.name }}</h4>
-    <p class="card-text">{{ scenario.description }}</p>
+    <h4 class="card-title font-weight-bold">{{ scenario?.name }}</h4>
+    <p class="card-text">{{ scenario?.description }}</p>
     <!--end::Content-->
 </div>
 </div>
@@ -91,25 +91,25 @@
   </div>
   <div class="card-body">
     <!--begin::Content-->
-    <h4 class="card-title font-weight-bold">{{ project.name }}</h4>
-    <p class="card-text">{{ project.description }}</p>
+    <h4 class="card-title font-weight-bold">{{ project?.name }}</h4>
+    <p class="card-text">{{ project?.description }}</p>
     <div class="col-lg-12 card-title pt-3 h5 pl-0 font-weight-bold">Acceptance Criteria</div>
     <div class="row">
       <div class="col-lg-6">
         <strong>Avg. Response Time:</strong>
-        <span> {{ project.avg_response_time }} ms</span>
+        <span> {{ project?.avg_response_time }} ms</span>
       </div>
       <div class="col-lg-6">
         <strong>Error Percentage:</strong>
-        <span> {{ project.error_percentage }}%</span>
+        <span> {{ project?.error_percentage }}%</span>
       </div>
       <div class="col-lg-6">
         <strong>CPU Usage:</strong>
-        <span> {{ project.cpu_usage }}%</span>
+        <span> {{ project?.cpu_usage }}%</span>
       </div>
       <div class="col-lg-6">
         <strong>Memory Usage:</strong>
-        <span> {{ project.memory_usage }}</span>
+        <span> {{ project?.memory_usage }}</span>
       </div>
     </div>
     <hr>
@@ -133,7 +133,7 @@
   </div>
   <div class="card-body">
     <!--begin::Content-->
-    <p class="card-text">{{ project.test_detail }}</p>
+    <p class="card-text">{{ project?.test_detail }}</p>
     <!--end::Content-->
 </div>
 </div>

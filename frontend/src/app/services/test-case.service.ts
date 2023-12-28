@@ -14,6 +14,10 @@ export class TestCaseService {
     return this.http.post(`${this.baseUrl}/add`, testCaseData);
   }
 
+  updateTestCase(testCaseData: any, testCaseId: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}/update/${testCaseId}`, testCaseData);
+  }
+
   getAllTestCases(): Observable<any> {
     return this.http.get(`${this.baseUrl}`);
   }
@@ -26,8 +30,8 @@ export class TestCaseService {
     return this.http.post(`${this.baseUrl}/result/add`, testCaseResults);
   }
 
-  getAllTestCaseResults(testCaseId: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/result/${testCaseId}`);
-  }
+  // getAllTestCaseResults(testCaseId: string): Observable<any[]> {
+  //   return this.http.get<any[]>(`${this.baseUrl}/result/${testCaseId}`);
+  // }
 
 }

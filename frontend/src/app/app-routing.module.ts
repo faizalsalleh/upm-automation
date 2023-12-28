@@ -31,6 +31,8 @@ const routes: Routes = [
   { path: 'testcase/create/:id', component: CreateTestComponent },
   { path: 'testcase/show/:id', component: ShowTestComponent },
   { path: 'testcase/update/:id', component: UpdateTestComponent },
+  { path: 'testcase/start/:id', component: LoadTestComponent },
+  
 ];
 
 @NgModule({

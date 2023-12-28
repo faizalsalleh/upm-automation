@@ -14,8 +14,4 @@ router.put('/update/:id', testCaseController.updateTestCase);
 // DELETE route to delete a test case
 router.delete('/delete/:id', testCaseController.deleteTestCase);
 
-// GET route to retrieve all test case results
-router.get('/result/:testCaseId', testCaseController.getAllTestCaseResults);
-
-
 module.exports = router;

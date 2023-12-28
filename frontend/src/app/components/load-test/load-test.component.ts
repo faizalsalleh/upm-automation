@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { LocustService } from '../../services/locust.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LocustService } from '../../services/locust.service';
+import { TestCaseService } from '../../services/test-case.service';
+import { TestCaseResultService } from '../../services/test-case-result.service';
 
 interface Stat {
   avg_content_length: number;
@@ -36,13 +39,22 @@ export class LoadTestComponent implements OnInit {
   currentUsers: number = 0;
   serviceStatus: 'running' | 'down' | 'unknown' = 'unknown';
   countdown: number = 0;
+  testCaseId!: string;
+  testCase: any;
 
-  constructor(private locustService: LocustService, private fb: FormBuilder) {
+  constructor(
+    private locustService: LocustService,
+    private testCaseService: TestCaseService,
+    private testCaseResultService: TestCaseResultService,
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router
+    ) {
     this.form = this.fb.group({
-      userCount: ['', Validators.required],
-      spawnRate: ['', Validators.required],
+      user_num: ['', Validators.required], // Default value set to 10
+      spawn_rate: ['', Validators.required], // Default value set to 11
       host: ['', Validators.required],
-      testPaths: this.fb.array([this.fb.control('')]),
+      testPaths: this.fb.array([this.fb.control('')]), // Default path
       duration: ['5s', Validators.required]
     });
   }
@@ -50,6 +62,22 @@ export class LoadTestComponent implements OnInit {
   ngOnInit(): void {
     this.updateServiceStatus();
     this.startStatsUpdate();
+    this.getTestCaseInfo();
+  }
+
+  getTestCaseInfo() {
+    this.route.params.subscribe(params => {
+      this.testCaseId = params['id'];
+
+      if (this.testCaseId) {
+        this.testCaseService.getTestCaseById(this.testCaseId).subscribe((data: any) => {
+          this.testCase = data;
+        });
+
+      } else {
+        // Handle invalid or missing project ID
+      }
+    });
   }
 
   startStatsUpdate() {
@@ -80,24 +108,30 @@ export class LoadTestComponent implements OnInit {
     if (this.form.valid) {
       this.isTesting = true;
       this.showResults = true;
-      const { userCount, spawnRate, host, testPaths, duration } = this.form.value;
+      const { user_num, spawn_rate, host, testPaths, duration } = this.form.value;
 
       this.individualTestResults = [];
       for (const path of testPaths) {
-        await this.runTest(userCount, spawnRate, host, path, duration);
+        await this.runTest(user_num, spawn_rate, host, path, duration);
       }
       this.isTesting = false;
+
+      this.testCaseService.updateTestCase(this.form.value, this.testCaseId).subscribe({
+        next: response => console.log('Test result saved', response),
+        error: err => console.error('Error saving test result', err)
+      });
+
     }
   }
 
-  async runTest(userCount: number, spawnRate: number, host: string, path: string, duration: string): Promise<void> {
+  async runTest(user_num: number, spawn_rate: number, host: string, path: string, duration: string): Promise<void> {
     return new Promise((resolve) => {
       const normalizedHost = host.endsWith('/') ? host.slice(0, -1) : host;
       const fullPath = normalizedHost + (path.startsWith('/') ? '' : '/') + path;
       const durationMs = this.convertDurationToMilliseconds(duration);
 
       this.currentTestUrl = fullPath;
-      this.locustService.startLoadTest(userCount, spawnRate, fullPath).subscribe(response => {
+      this.locustService.startLoadTest(user_num, spawn_rate, fullPath).subscribe(response => {
         this.progress = 100;
         const startTime = Date.now();
 
@@ -240,4 +274,14 @@ export class LoadTestComponent implements OnInit {
     });
   }
 
+  saveTestResults(): void {
+    console.log('testCaseId at load-test.component.ts:', this.testCaseId);
+    this.individualTestResults.forEach(result => {
+      // Each result is saved with the testCaseId
+      this.testCaseResultService.addTestCaseResult({...result, testCaseId: this.testCaseId}).subscribe({
+        next: response => console.log('Test result saved', response),
+        error: err => console.error('Error saving test result', err)
+      });
+    });
+  }
 }

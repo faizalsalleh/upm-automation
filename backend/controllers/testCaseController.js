@@ -9,24 +9,19 @@ async function connectDB() {
     return client.db("automation").collection("test_cases");
 }
 
-async function connectDB2() {
-    await client.connect();
-    return client.db("automation").collection("test_case_data");
-}
-
 // Create a new test case
 exports.createTestCase = async (req, res) => {
     try {
         const testCasesCollection = await connectDB();
         const testCaseData = {
             ...req.body,
-            scenario_id: ObjectId(req.body.scenario_id),  // Convert to ObjectId
-            user_id: ObjectId(req.body.user_id),  // Convert to ObjectId
+            scenario_id: new ObjectId(req.body.scenario_id),  // Convert to ObjectId
+            user_id: new ObjectId(req.body.user_id),  // Convert to ObjectId
             created_at: new Date(),
             updated_at: new Date()
         };
         const result = await testCasesCollection.insertOne(testCaseData);
-        res.status(201).json({ message: 'Test case created successfully', data: result });
+        res.status(201).json({ message: 'Test case created successfully', id: result.insertedId });
     } catch (err) {
         console.error('Error creating test case:', err);
         res.status(500).json({ message: 'Error creating test case', error: err.message });
@@ -59,22 +54,6 @@ exports.getAllTestCasesForScenario = async (req, res) => {
       res.status(500).json({ message: 'Error retrieving test cases', error: err.message });
   }
 };
-
-// Get all test case results
-exports.getAllTestCaseResults = async (req, res) => {
-  try {
-      const testCaseResultsCollection = await connectDB2();
-      const testCaseId = new ObjectId(req.params.testCaseId); // Convert string to ObjectId
-      const testCaseResults = await testCaseResultsCollection.find({ test_case_id: testCaseId })
-                                                .sort({ created_at: -1 })
-                                                .toArray();
-      res.status(200).json(testCaseResults);
-  } catch (err) {
-      console.error('Error retrieving test case results:', err);
-      res.status(500).json({ message: 'Error retrieving case results', error: err.message });
-  }
-};
-
 
 // Get a single test case by ID
 exports.getTestCaseById = async (req, res) => {

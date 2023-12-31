@@ -5,26 +5,25 @@
   <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group col-lg-6">
-        <label for="userCount">Number of users (peak concurrency)</label>
-        <input formControlName="user_num" id="user_num" type="number" placeholder="Number of users" class="form-control" value="10">
+        <label for="user_num">Number of users (peak concurrency)</label>
+        <input formControlName="user_num" id="user_num" type="number" class="form-control" placeholder="Number of users">
       </div>
       <div class="form-group col-lg-6">
-        <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input formControlName="spawn_rate" id="spawn_rate" type="number" placeholder="Spawn rate" class="form-control" value="11">
+        <label for="spawn_rate">Spawn rate (users started/second)</label>
+        <input formControlName="spawn_rate" id="spawn_rate" type="number" class="form-control" placeholder="Spawn rate">
       </div>
-      <div class="form-group col-lg-6">
+      <!-- <div class="form-group col-lg-6">
         <label for="duration">Duration (e.g. 5s, 3m, 2h, 1h20m, 3h30m10s, etc.)</label>
         <input formControlName="duration" id="duration" type="text" placeholder="Enter duration (e.g., 5s, 3m, 2h)" class="form-control">
-      </div>
+      </div> -->
       <div class="form-group col-lg-6">
         <label for="host">Host</label>
-        <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control" value="https://www.upm.edu.my">
+        <input formControlName="host" id="host" type="text" class="form-control" placeholder="e.g. http://www.example.com">
       </div>
-      <!-- additional URL path -->
-      <div class="form-group col-lg-6">
+      <div formArrayName="testPaths" class="form-group col-lg-6">
         <label>Paths</label><br>
-        <div formArrayName="testPaths" *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
-          <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')" value="/pelajar-734">
+        <div *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
+          <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')">
           <div class="input-group-append">
             <button (click)="removeTestPath(i)" type="button" class="btn btn-danger">Remove</button>
           </div>
@@ -37,11 +36,9 @@
       </div>
     </form>
     <div *ngIf="isTesting" class="card mt-3 p-3">
-      Testing on {{ currentTestUrl }} page
       <div class="progress">
         <div class="progress-bar bg-success" role="progressbar" [style.width]="progress + '%'" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
-
       <p class="mb-0">{{ countdown }} seconds remaining</p>
       <p class="mb-0">Current Users: {{ currentUsers }}</p>
     </div>
@@ -51,10 +48,6 @@
 <ng-container *ngIf="serviceStatus === 'down'">
   <div class="alert alert-danger">Locust service is down. Please check the service.</div>
 </ng-container>
-
-<!-- <ng-container *ngIf="serviceStatus === 'running'">
-  <div class="alert alert-success">Locust service is running.</div>
-</ng-container> -->
 
 <div class="card mt-4" *ngIf="showResults">
   <div class="card-header h5 font-weight-bold">
@@ -97,20 +90,6 @@
           <td>{{ stat.avg_content_length }}</td>
           <td>{{ stat.current_rps }}</td>
           <td>{{ stat.current_fail_per_sec }}</td>
-        </tr>
-        <tr *ngIf="aggregatedResult">
-          <td colspan="3">Aggregated</td>
-          <td>{{ aggregatedResult!.num_requests }}</td>
-          <td>{{ aggregatedResult!.num_failures }}</td>
-          <td>{{ aggregatedResult!.median_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.ninetieth_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.ninety_ninth_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.avg_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.min_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.max_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.avg_content_length | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.current_rps | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.current_fail_per_sec | number:'1.0-3' }}</td>
         </tr>
       </tbody>
     </table>

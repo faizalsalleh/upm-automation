@@ -3,7 +3,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
-// Define the structure of the stats object as per your API response
 interface Stat {
   avg_content_length: number;
   avg_response_time: number;
@@ -23,7 +22,6 @@ interface Stat {
 
 interface StatsResponse {
   stats: Stat[];
-  // Add other properties from the response if needed
 }
 
 @Injectable({
@@ -31,7 +29,7 @@ interface StatsResponse {
 })
 export class LocustService {
 
-  private baseUrl = 'http://localhost:8089';
+  private baseUrl = '/api'; // Updated to use the '/api' prefix
 
   constructor(private http: HttpClient) { }
 
@@ -42,13 +40,21 @@ export class LocustService {
     );
   }
 
-  startLoadTest(userCount: number, spawnRate: number, host: string): Observable<any> {
+  isTestRunning(): Observable<boolean> {
+    return this.http.get<{running: boolean}>(`${this.baseUrl}/test_status`).pipe(
+      map(response => response.running),
+      catchError(() => of(false)) // Assume not running if there's an error
+    );
+  }
+
+  startLoadTest(userCount: number, spawnRate: number, host: string, duration: string): Observable<any> {
     const body = `user_count=${userCount}&spawn_rate=${spawnRate}&host=${host}`;
     const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
     return this.http.post(`${this.baseUrl}/swarm`, body, { headers: headers }).pipe(
       catchError(this.handleError)
     );
-  }
+}
+
 
   stopLoadTest(): Observable<any> {
     return this.http.get(`${this.baseUrl}/stop`).pipe(
@@ -71,16 +77,10 @@ export class LocustService {
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Something went wrong; please try again later.';
     if (error.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.
       console.error('An error occurred:', error.error.message);
     } else {
-      // The backend returned an unsuccessful response code.
-      // The response body may contain clues as to what went wrong.
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
+      console.error(`Backend returned code ${error.status}, body was: ${error.error}`);
     }
-    // Return an observable with a user-facing error message.
     return throwError(() => new Error(errorMessage));
   }
 

@@ -14,6 +14,7 @@
           <th>Error Percentage</th>
           <th>CPU Usage</th>
           <th>Memory Usage</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +25,7 @@
           <td>{{ project.error_percentage }}</td>
           <td>{{ project.cpu_usage }}</td>
           <td>{{ project.memory_usage }}</td>
+          <td class="text-center"><a [routerLink]="['/dashboard/show', project._id]" class="btn btn-warning btn-sm">View Dashboard</a></td>
         </tr>
       </tbody>
     </table>

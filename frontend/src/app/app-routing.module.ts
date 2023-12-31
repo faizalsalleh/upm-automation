@@ -14,6 +14,7 @@ import { CreateTestComponent } from './components/test-case/create-test/create-t
 import { IndexTestComponent } from './components/test-case/index-test/index-test.component';
 import { ShowTestComponent } from './components/test-case/show-test/show-test.component';
 import { UpdateTestComponent } from './components/test-case/update-test/update-test.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/main', pathMatch: 'full' }, // default route
@@ -32,7 +33,8 @@ const routes: Routes = [
   { path: 'testcase/show/:id', component: ShowTestComponent },
   { path: 'testcase/update/:id', component: UpdateTestComponent },
   { path: 'testcase/start/:id', component: LoadTestComponent },
-  
+  { path: 'dashboard/show/:id', component: DashboardComponent },
+
 ];
 
 @NgModule({

@@ -3,6 +3,7 @@
     Project Detail
     <button (click)="deleteProject(project._id)" class="btn btn-danger btn-sm float-right">Remove</button>
     <a [routerLink]="['/project/edit', project._id]" class="btn btn-primary btn-sm mr-2 float-right">Edit</a>
+    <a [routerLink]="['/dashboard/show', project._id]" class="btn btn-warning btn-sm mr-2 float-right">View Dashboard</a>
   </div>
   <div class="card-body">
     <!--begin::Content-->

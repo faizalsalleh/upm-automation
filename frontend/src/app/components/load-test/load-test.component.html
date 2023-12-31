@@ -1,3 +1,4 @@
+<app-alert [message]="alertMessage" [type]="alertType"></app-alert>
 <div class="card">
   <div class="card-header">
     <div class="ml-2 h5 font-weight-bold">{{ testCase?.name }}</div>
@@ -37,13 +38,14 @@
       </div>
     </form>
     <div *ngIf="isTesting" class="card mt-3 p-3">
-      Testing on {{ currentTestUrl }} page
+
+      <p>Testing on {{ currentTestUrl }} page</p>
+      <p class="mb-3">Current Users: {{ currentUsers }}</p>
       <div class="progress">
         <div class="progress-bar bg-success" role="progressbar" [style.width]="progress + '%'" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
       </div>
 
       <p class="mb-0">{{ countdown }} seconds remaining</p>
-      <p class="mb-0">Current Users: {{ currentUsers }}</p>
     </div>
   </div>
 </div>

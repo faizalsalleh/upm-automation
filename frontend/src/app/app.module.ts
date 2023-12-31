@@ -23,6 +23,7 @@ import { CreateTestComponent } from './components/test-case/create-test/create-t
 import { IndexTestComponent } from './components/test-case/index-test/index-test.component';
 import { ShowTestComponent } from './components/test-case/show-test/show-test.component';
 import { UpdateTestComponent } from './components/test-case/update-test/update-test.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { UpdateTestComponent } from './components/test-case/update-test/update-t
     CreateTestComponent,
     IndexTestComponent,
     ShowTestComponent,
-    UpdateTestComponent
+    UpdateTestComponent,
+    DashboardComponent
   ],
   imports: [
     HttpClientModule,

@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LocustService } from '../../services/locust.service';
 import { TestCaseService } from '../../services/test-case.service';
 import { TestCaseResultService } from '../../services/test-case-result.service';
+import { AlertService } from '../../services/alert.service';
 
 interface Stat {
   avg_content_length: number;
@@ -31,6 +32,8 @@ interface Stat {
 export class LoadTestComponent implements OnInit {
   form: FormGroup;
   isTesting: boolean = false;
+  alertMessage: string = '';
+  alertType: 'error' | 'info' | 'warning' | 'success' = 'info';
   individualTestResults: Stat[] = [];
   aggregatedResult: Stat | null = null;
   progress: number = 100;
@@ -40,6 +43,7 @@ export class LoadTestComponent implements OnInit {
   serviceStatus: 'running' | 'down' | 'unknown' = 'unknown';
   countdown: number = 0;
   testCaseId!: string;
+  scenarioId!: string;
   testCase: any;
 
   constructor(
@@ -48,6 +52,7 @@ export class LoadTestComponent implements OnInit {
     private testCaseResultService: TestCaseResultService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private alertService: AlertService,
     private router: Router
     ) {
     this.form = this.fb.group({
@@ -72,6 +77,7 @@ export class LoadTestComponent implements OnInit {
       if (this.testCaseId) {
         this.testCaseService.getTestCaseById(this.testCaseId).subscribe((data: any) => {
           this.testCase = data;
+          this.scenarioId = this.testCase.scenario_id
         });
 
       } else {
@@ -279,8 +285,23 @@ export class LoadTestComponent implements OnInit {
     this.individualTestResults.forEach(result => {
       // Each result is saved with the testCaseId
       this.testCaseResultService.addTestCaseResult({...result, testCaseId: this.testCaseId}).subscribe({
-        next: response => console.log('Test result saved', response),
-        error: err => console.error('Error saving test result', err)
+        //next: response => console.log('Test result saved', response),
+        //error: err => console.error('Error saving test result', err)
+
+        next: (response) => {
+          // Redirect to index page with success message
+          this.alertService.setAlert('Test Case created successfully', 'success');
+          this.router.navigate(['/scenario/show/', this.scenarioId]);
+
+        },
+        error: (error) => {
+          // Display error message on the create page
+          this.alertMessage = error.error.message;
+          this.alertType = 'error';
+          window.scrollTo(0, 0); // Scroll to the top of the window
+        }
+
+
       });
     });
   }

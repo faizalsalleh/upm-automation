@@ -16,6 +16,7 @@ interface Stat {
   method: string;
   min_response_time: number;
   name: string;
+  user_num: number;
   ninetieth_response_time: number;
   ninety_ninth_response_time: number;
   num_failures: number;
@@ -35,9 +36,9 @@ export class LoadTestComponent implements OnInit {
   alertMessage: string = '';
   alertType: 'error' | 'info' | 'warning' | 'success' = 'info';
   individualTestResults: Stat[] = [];
-  aggregatedResult: Stat | null = null;
   progress: number = 100;
   currentTestUrl: string = '';
+  userNum: number = 0;
   showResults: boolean = false;
   currentUsers: number = 0;
   serviceStatus: 'running' | 'down' | 'unknown' = 'unknown';
@@ -45,6 +46,7 @@ export class LoadTestComponent implements OnInit {
   testCaseId!: string;
   scenarioId!: string;
   testCase: any;
+  testCaseName!: string;
 
   constructor(
     private locustService: LocustService,
@@ -57,10 +59,7 @@ export class LoadTestComponent implements OnInit {
     ) {
     this.form = this.fb.group({
       user_num: ['', Validators.required], // Default value set to 10
-      spawn_rate: ['', Validators.required], // Default value set to 11
-      host: ['', Validators.required],
-      testPaths: this.fb.array([this.fb.control('')]), // Default path
-      duration: ['5s', Validators.required]
+      host: ['', Validators.required]
     });
   }
 
@@ -78,6 +77,7 @@ export class LoadTestComponent implements OnInit {
         this.testCaseService.getTestCaseById(this.testCaseId).subscribe((data: any) => {
           this.testCase = data;
           this.scenarioId = this.testCase.scenario_id
+          this.testCaseName = this.testCase.name
         });
 
       } else {
@@ -98,70 +98,54 @@ export class LoadTestComponent implements OnInit {
     }, 2000); // Fetch stats every 2 seconds (adjust as needed)
   }
 
-  get testPaths() {
-    return this.form.get('testPaths') as FormArray;
-  }
-
-  addTestPath() {
-    this.testPaths.push(this.fb.control(''));
-  }
-
-  removeTestPath(index: number) {
-    this.testPaths.removeAt(index);
-  }
-
   async onStartTest(): Promise<void> {
     if (this.form.valid) {
       this.isTesting = true;
       this.showResults = true;
-      const { user_num, spawn_rate, host, testPaths, duration } = this.form.value;
+      const { user_num, host } = this.form.value;
+
+      // Split user_num string into an array of numbers
+      const userNums = user_num.split(',').map((num: string) => parseInt(num.trim()));
 
       this.individualTestResults = [];
-      for (const path of testPaths) {
-        await this.runTest(user_num, spawn_rate, host, path, duration);
+
+      for (const num of userNums) {
+        await this.runTest(num, host);
       }
+
       this.isTesting = false;
-
-      this.testCaseService.updateTestCase(this.form.value, this.testCaseId).subscribe({
-        next: response => console.log('Test result saved', response),
-        error: err => console.error('Error saving test result', err)
-      });
-
     }
   }
 
-  async runTest(user_num: number, spawn_rate: number, host: string, path: string, duration: string): Promise<void> {
+  async runTest(user_num: number, host: string): Promise<void> {
     return new Promise((resolve) => {
       const normalizedHost = host.endsWith('/') ? host.slice(0, -1) : host;
-      const fullPath = normalizedHost + (path.startsWith('/') ? '' : '/') + path;
-      const durationMs = this.convertDurationToMilliseconds(duration);
+      const fullPath = normalizedHost;
+      const spawnRate = Math.max(1, Math.round(user_num * 0.1));
 
       this.currentTestUrl = fullPath;
-      this.locustService.startLoadTest(user_num, spawn_rate, fullPath).subscribe(response => {
-        this.progress = 100;
-        const startTime = Date.now();
+      this.userNum = user_num;
+      this.locustService.startLoadTest(user_num, spawnRate, fullPath).subscribe(response => {
+        this.isTesting = true; // Activate spinner
 
-        // Initialize countdown based on duration
-        this.countdown = Math.ceil(durationMs / 1000);
+        // Polling interval to check if the current number of users matches the target
+        const checkUsersInterval = setInterval(() => {
+          this.locustService.getRealTimeStats().subscribe(stats => {
+            this.currentUsers = stats.user_count;
 
-        const interval = setInterval(() => {
-          const elapsedTime = Date.now() - startTime;
-          this.progress = Math.max(0, 100 - (elapsedTime / durationMs) * 100);
-
-          // Update countdown
-          this.countdown = Math.ceil((durationMs - elapsedTime) / 1000);
-
-          // Fetch current users
-          this.updateCurrentUsers();
-
-          if (elapsedTime >= durationMs) {
-            clearInterval(interval);
-            this.stopTestAndFetchStats(path, resolve);
-          }
-        }, 1000);
+            if (this.currentUsers >= user_num) {
+              clearInterval(checkUsersInterval);
+              this.stopTestAndFetchStats(this.testCaseName, user_num, () => {
+                this.isTesting = false; // Deactivate spinner once test is complete
+                resolve();
+              });
+            }
+          });
+        }, 2000); // Check every 2 seconds
       });
     });
   }
+
 
   private updateCurrentUsers(): void {
     this.locustService.getRealTimeStats().subscribe(stats => {
@@ -169,23 +153,29 @@ export class LoadTestComponent implements OnInit {
     });
   }
 
-  private stopTestAndFetchStats(path: string, resolve: () => void): void {
+  private stopTestAndFetchStats(path: string, user_num: number, resolve: () => void): void {
     this.locustService.stopLoadTest().subscribe(stopResponse => {
       this.locustService.getStats().subscribe(stats => {
-        this.processStats(stats, path);
+        this.processStats(stats, path, user_num);
         resolve();
       });
     });
   }
 
-  processStats(stats: any, path: string): void {
+  processStats(stats: any, path: string, user_num: number): void {
     const filteredStats = stats.stats.filter((stat: Stat) => stat.name !== 'Aggregated');
     filteredStats.forEach((stat: Stat) => {
       stat.name = path;
+      stat.user_num = user_num;
+
+      // Round the decimal numbers to the nearest integer
+      stat.avg_response_time = Math.round(stat.avg_response_time);
+      stat.avg_content_length = Math.round(stat.avg_content_length);
+      stat.current_rps = Math.round(stat.current_rps);
+
     });
 
     this.individualTestResults.push(...filteredStats);
-    this.calculateAggregatedResults();
   }
 
   stopTest(): void {
@@ -198,79 +188,7 @@ export class LoadTestComponent implements OnInit {
   onResetStats(): void {
     this.locustService.resetStats().subscribe(response => {
       this.individualTestResults = [];
-      this.aggregatedResult = null;
     });
-  }
-
-  convertDurationToMilliseconds(duration: string): number {
-    const match = duration.match(/(\d+)([hms])/);
-    if (match) {
-      const value = parseInt(match[1], 10);
-      const unit = match[2];
-      switch (unit) {
-        case 'h': return value * 3600000;
-        case 'm': return value * 60000;
-        case 's': return value * 1000;
-        default: return 0;
-      }
-    }
-    return 0;
-  }
-
-  calculateAggregatedResults(): void {
-    // Initialize the aggregatedResult object with zeros or appropriate starting values
-    const initialAggregatedResult: Stat = {
-      avg_content_length: 0,
-      avg_response_time: 0,
-      current_fail_per_sec: 0,
-      current_rps: 0,
-      max_response_time: 0,
-      median_response_time: 0,
-      method: '', // method might not be relevant for aggregated results
-      min_response_time: Number.MAX_SAFE_INTEGER,
-      ninetieth_response_time: 0,
-      ninety_ninth_response_time: 0,
-      num_failures: 0,
-      num_requests: 0,
-      name: 'Aggregated', // or any other identifier you prefer
-      safe_name: 'aggregated' // or any other identifier you prefer
-    };
-
-    // Sum up all the values for each test result
-    this.individualTestResults.forEach(stat => {
-      initialAggregatedResult.avg_content_length += stat.avg_content_length;
-      initialAggregatedResult.avg_response_time += stat.avg_response_time;
-      initialAggregatedResult.current_fail_per_sec += stat.current_fail_per_sec;
-      initialAggregatedResult.current_rps += stat.current_rps;
-      initialAggregatedResult.max_response_time = Math.max(initialAggregatedResult.max_response_time, stat.max_response_time);
-      initialAggregatedResult.median_response_time += stat.median_response_time;
-      // Assuming min_response_time should be the minimum of all tests
-      initialAggregatedResult.min_response_time = Math.min(initialAggregatedResult.min_response_time, stat.min_response_time);
-      initialAggregatedResult.ninetieth_response_time += stat.ninetieth_response_time;
-      initialAggregatedResult.ninety_ninth_response_time += stat.ninety_ninth_response_time;
-      initialAggregatedResult.num_failures += stat.num_failures;
-      initialAggregatedResult.num_requests += stat.num_requests;
-    });
-
-    // Calculate averages by dividing by the number of test results
-    const testCount = this.individualTestResults.length;
-    if (testCount > 0) {
-      initialAggregatedResult.avg_content_length /= testCount;
-      initialAggregatedResult.avg_response_time /= testCount;
-      initialAggregatedResult.median_response_time /= testCount;
-      initialAggregatedResult.ninetieth_response_time /= testCount;
-      initialAggregatedResult.ninety_ninth_response_time /= testCount;
-      // For current RPS and current failures per second, you might want to take the average or the max
-      initialAggregatedResult.current_rps /= testCount;
-      initialAggregatedResult.current_fail_per_sec /= testCount;
-      // If min_response_time is MAX_SAFE_INTEGER, it means no requests were made
-      if (initialAggregatedResult.min_response_time === Number.MAX_SAFE_INTEGER) {
-        initialAggregatedResult.min_response_time = 0;
-      }
-    }
-
-    // Assign the calculated result to this.aggregatedResult
-    this.aggregatedResult = initialAggregatedResult;
   }
 
   updateServiceStatus(): void {
@@ -281,27 +199,24 @@ export class LoadTestComponent implements OnInit {
   }
 
   saveTestResults(): void {
-    console.log('testCaseId at load-test.component.ts:', this.testCaseId);
     this.individualTestResults.forEach(result => {
-      // Each result is saved with the testCaseId
-      this.testCaseResultService.addTestCaseResult({...result, testCaseId: this.testCaseId}).subscribe({
-        //next: response => console.log('Test result saved', response),
-        //error: err => console.error('Error saving test result', err)
+      // Round the values before saving
+      result.avg_response_time = Math.round(result.avg_response_time);
+      result.avg_content_length = Math.round(result.avg_content_length);
+      result.current_rps = Math.round(result.current_rps);
 
+      this.testCaseResultService.addTestCaseResult({...result, testCaseId: this.testCaseId}).subscribe({
         next: (response) => {
           // Redirect to index page with success message
           this.alertService.setAlert('Test Case created successfully', 'success');
           this.router.navigate(['/scenario/show/', this.scenarioId]);
-
         },
         error: (error) => {
-          // Display error message on the create page
+          // Handle individual result save error
           this.alertMessage = error.error.message;
           this.alertType = 'error';
           window.scrollTo(0, 0); // Scroll to the top of the window
         }
-
-
       });
     });
   }

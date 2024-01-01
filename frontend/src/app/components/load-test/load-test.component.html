@@ -7,30 +7,11 @@
     <form [formGroup]="form" (ngSubmit)="onStartTest()">
       <div class="form-group col-lg-6">
         <label for="userCount">Number of users (peak concurrency)</label>
-        <input formControlName="user_num" id="user_num" type="number" placeholder="Number of users" class="form-control" value="10">
-      </div>
-      <div class="form-group col-lg-6">
-        <label for="spawnRate">Spawn rate (users started/second)</label>
-        <input formControlName="spawn_rate" id="spawn_rate" type="number" placeholder="Spawn rate" class="form-control" value="11">
-      </div>
-      <div class="form-group col-lg-6">
-        <label for="duration">Duration (e.g. 5s, 3m, 2h, 1h20m, 3h30m10s, etc.)</label>
-        <input formControlName="duration" id="duration" type="text" placeholder="Enter duration (e.g., 5s, 3m, 2h)" class="form-control">
+        <input formControlName="user_num" id="user_num" type="text" placeholder="e.g.: 5,10,50,100,1000,2000" class="form-control" value="10">
       </div>
       <div class="form-group col-lg-6">
         <label for="host">Host</label>
         <input formControlName="host" id="host" type="text" placeholder="e.g. http://www.example.com" class="form-control" value="https://www.upm.edu.my">
-      </div>
-      <!-- additional URL path -->
-      <div class="form-group col-lg-6">
-        <label>Paths</label><br>
-        <div formArrayName="testPaths" *ngFor="let path of testPaths.controls; let i=index" class="input-group mb-2">
-          <input [formControlName]="i" type="text" class="form-control" placeholder="Enter Path (e.g. '/' or '/path')" value="/pelajar-734">
-          <div class="input-group-append">
-            <button (click)="removeTestPath(i)" type="button" class="btn btn-danger">Remove</button>
-          </div>
-        </div>
-        <button (click)="addTestPath()" type="button" class="btn btn-primary">Add Path</button>
       </div>
       <div class="form-group col-lg-6">
         <button type="submit" id="submit" [disabled]="form.invalid || isTesting" class="btn btn-warning mr-2">Start Test</button>
@@ -39,13 +20,15 @@
     </form>
     <div *ngIf="isTesting" class="card mt-3 p-3">
 
-      <p>Testing on {{ currentTestUrl }} page</p>
-      <p class="mb-3">Current Users: {{ currentUsers }}</p>
-      <div class="progress">
-        <div class="progress-bar bg-success" role="progressbar" [style.width]="progress + '%'" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100"></div>
+      <p>Testing on {{ currentTestUrl }} page <br>
+      User : {{ userNum }} <br>
+      Current Users: {{ currentUsers }}</p>
+      <div class="text-center" *ngIf="isTesting">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p>Loading, please wait...</p>
       </div>
-
-      <p class="mb-0">{{ countdown }} seconds remaining</p>
     </div>
   </div>
 </div>
@@ -70,6 +53,7 @@
           <th>#</th>
           <th>Type</th>
           <th>Name (Page)</th>
+          <th>Total User</th>
           <th># Requests</th>
           <th># Fails</th>
           <th>Median (ms)</th>
@@ -88,6 +72,7 @@
           <td>{{ i + 1 }}.</td>
           <td>{{ stat.method }}</td>
           <td>{{ stat.name }}</td>
+          <td>{{ stat.user_num }}</td>
           <td>{{ stat.num_requests }}</td>
           <td>{{ stat.num_failures }}</td>
           <td>{{ stat.median_response_time }}</td>
@@ -99,20 +84,6 @@
           <td>{{ stat.avg_content_length }}</td>
           <td>{{ stat.current_rps }}</td>
           <td>{{ stat.current_fail_per_sec }}</td>
-        </tr>
-        <tr *ngIf="aggregatedResult">
-          <td colspan="3">Aggregated</td>
-          <td>{{ aggregatedResult!.num_requests }}</td>
-          <td>{{ aggregatedResult!.num_failures }}</td>
-          <td>{{ aggregatedResult!.median_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.ninetieth_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.ninety_ninth_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.avg_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.min_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.max_response_time | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.avg_content_length | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.current_rps | number:'1.0-3' }}</td>
-          <td>{{ aggregatedResult!.current_fail_per_sec | number:'1.0-3' }}</td>
         </tr>
       </tbody>
     </table>

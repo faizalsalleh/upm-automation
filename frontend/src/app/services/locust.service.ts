@@ -14,11 +14,12 @@ interface Stat {
   method: string;
   min_response_time: number;
   name: string;
+  user_num: number;
   ninetieth_response_time: number;
   ninety_ninth_response_time: number;
   num_failures: number;
   num_requests: number;
-  safe_name: string;
+  safe_name?: string;
 }
 
 interface StatsResponse {

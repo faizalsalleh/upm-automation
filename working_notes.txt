@@ -41,13 +41,14 @@ mongosh
 use automation
 db.createCollection("scenarios")
 db.createCollection("test_cases")
-db.createCollection("test_case_data")
+db.createCollection("test_case_results")
 db.scenarios.insertOne({ name: "Sample Project", description: "This is a sample project." })
 
-db.test_case_data.insertOne({
+db.test_case_results.insertOne({
   test_case_id: ObjectId("6589d3c9ccd125beba625909"),
   type: "GET",
   name: "/",
+  user_num: 5,
   request: 9,
   fail: 0,
   median: 61,
@@ -86,9 +87,28 @@ db.test_cases.insertOne({
   updated_at: new Date()
 })
 
+db.test_cases.insertOne({
+  scenario_id: ObjectId("658941f4c4d07b2f7b369929"),
+  name: "Test Case 1",
+  description: "Test Case 1 Description",
+  user_num: 2,
+  spawn_rate: 1,
+  host: "https://www.upm.edu.my",
+  user_id: ObjectId("658733068fd542d8d32afffe"),
+  created_at: new Date(),
+  updated_at: new Date()
+})
+
+
 
 db.scenarios.find({}, { project_id: '65887788a846e36356a0555c' }).limit(5).pretty()
 db.scenarios.find({ project_id: ObjectId('65887788a846e36356a0555c') }).pretty()
+
+
+curl -X POST http://localhost:4200/swarm -H "Content-Type: application/json" -d "{\"paths\": [\"/staf-1932\"], \"host\": \"https://www.upm.edu.my\"}"
+
+curl -X POST http://localhost:8089/swarm -H "Content-Type: application/json" -d "{\"yourDataHere\": \"value\"}"
+
 
 
 

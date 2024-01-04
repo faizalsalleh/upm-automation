@@ -41,12 +41,12 @@ exports.getAllTestCases = async (req, res) => {
 };
 
 // Get all test cases for a specific scenario
+// .sort({ created_at: -1 })
 exports.getAllTestCasesForScenario = async (req, res) => {
   try {
       const testCasesCollection = await connectDB();
       const scenarioId = new ObjectId(req.params.scenarioId); // Convert string to ObjectId
       const testCases = await testCasesCollection.find({ scenario_id: scenarioId }) // Use scenarioId as ObjectId
-                                                .sort({ created_at: -1 })
                                                 .toArray();
       res.status(200).json(testCases);
   } catch (err) {

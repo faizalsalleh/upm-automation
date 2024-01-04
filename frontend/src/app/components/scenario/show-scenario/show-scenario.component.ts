@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { AlertService  } from '../../../services/alert.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-show-scenario',
@@ -22,7 +23,8 @@ export class ShowScenarioComponent implements OnInit {
     private router: Router,
     private projectService: ProjectService,
     private scenarioService: ScenarioService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -30,7 +32,6 @@ export class ShowScenarioComponent implements OnInit {
     const alertInfo = this.alertService.getAlert();
     this.alertMessage = alertInfo.message;
     this.alertType = alertInfo.type;
-    console.log('Alert Message:', this.alertMessage);
 
     // Clear the alert message in the service after retrieving it
     this.alertService.clearAlert();
@@ -64,4 +65,9 @@ export class ShowScenarioComponent implements OnInit {
   deleteScenario(scenarioId: string) {
     // Implement project deletion logic
   }
+
+  goBack(): void {
+    this.location.back();
+  }
+
 }

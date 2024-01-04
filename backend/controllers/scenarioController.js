@@ -19,9 +19,9 @@ exports.createScenario = async (req, res) => {
     try {
         const scenariosCollection = await connectDB();
         const scenarioData = {
+            project_id: new ObjectId(req.body.project_id),
             ...req.body,
-            projectId: ObjectId(req.body.projectId),
-            user_id: ObjectId(req.body.user_id),
+            user_id: new ObjectId(req.body.user_id),
             created_at: new Date(),
             updated_at: new Date()
         };
@@ -74,7 +74,7 @@ exports.getAllScenariosForProject = async (req, res) => {
       const projectId = new ObjectId(req.params.projectId); // Convert string to ObjectId
       console.log('projectId in scenarioController.js:', projectId);
 
-      const scenarios = await scenariosCollection.find({ project_id: projectId }) // Use projectId as ObjectId
+      const scenarios = await scenariosCollection.find({ project_id: req.params.projectId }) // Use projectId as ObjectId
                                                 .sort({ created_at: -1 })
                                                 .toArray();
       res.status(200).json(scenarios);

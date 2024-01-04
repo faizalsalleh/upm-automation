@@ -47,6 +47,8 @@ export class LoadTestComponent implements OnInit {
   scenarioId!: string;
   testCase: any;
   testCaseName!: string;
+  fullPath!: string;
+  spawnRate: number = 0;
 
   constructor(
     private locustService: LocustService,
@@ -120,12 +122,12 @@ export class LoadTestComponent implements OnInit {
   async runTest(user_num: number, host: string): Promise<void> {
     return new Promise((resolve) => {
       const normalizedHost = host.endsWith('/') ? host.slice(0, -1) : host;
-      const fullPath = normalizedHost;
-      const spawnRate = Math.max(1, Math.round(user_num * 0.1));
+      this.fullPath = normalizedHost;
+      this.spawnRate = Math.max(1, Math.round(user_num * 0.1));
 
-      this.currentTestUrl = fullPath;
+      this.currentTestUrl = this.fullPath;
       this.userNum = user_num;
-      this.locustService.startLoadTest(user_num, spawnRate, fullPath).subscribe(response => {
+      this.locustService.startLoadTest(user_num, this.spawnRate, this.fullPath).subscribe(response => {
         this.isTesting = true; // Activate spinner
 
         // Polling interval to check if the current number of users matches the target
@@ -199,6 +201,29 @@ export class LoadTestComponent implements OnInit {
   }
 
   saveTestResults(): void {
+    if (this.form.valid) {
+      // Prepare the form data
+      const { user_num, host } = this.form.value;
+      const formData = {
+        user_num: user_num,
+        spawn_rate: this.spawnRate,
+        host: this.fullPath
+      };
+
+      // Updating an existing test case
+      this.testCaseService.updateTestCase(formData, this.testCaseId).subscribe({
+        next: (response) => {
+          // Handle successful update
+        },
+        error: (error) => {
+          // Handle update error
+          this.alertMessage = error.error.message;
+          this.alertType = 'error';
+          window.scrollTo(0, 0); // Scroll to the top of the window
+        }
+      });
+    }
+
     this.individualTestResults.forEach(result => {
       // Round the values before saving
       result.avg_response_time = Math.round(result.avg_response_time);

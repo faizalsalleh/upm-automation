@@ -20,7 +20,7 @@ exports.createProject = async (req, res) => {
     const projectsCollection = await connectDB();
     const projectData = {
         ...req.body,
-        user_id: "658733068fd542d8d32afffe", // Dummy user ID
+        user_id: new ObjectId(req.body.user_id),
         created_at: new Date(),
         updated_at: new Date()
     };

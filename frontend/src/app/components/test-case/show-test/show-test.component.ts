@@ -4,6 +4,7 @@ import { ProjectService } from '../../../services/project.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { TestCaseService } from '../../../services/test-case.service';
 import { TestCaseResultService } from '../../../services/test-case-result.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-show-test',
@@ -23,7 +24,8 @@ export class ShowTestComponent implements OnInit {
     private projectService: ProjectService,
     private scenarioService: ScenarioService,
     private testCaseService: TestCaseService,
-    private testCaseResultService: TestCaseResultService
+    private testCaseResultService: TestCaseResultService,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -64,4 +66,9 @@ export class ShowTestComponent implements OnInit {
   deleteTestCase(testCaseId: string) {
     // Implement project deletion logic
   }
+
+  goBack(): void {
+    this.location.back();
+  }
+
 }

@@ -2,6 +2,7 @@
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Create Test Case
+    <button type="button" class="btn btn-info float-right btn-sm mr-2" (click)="goBack()">Back</button>
   </div>
   <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">

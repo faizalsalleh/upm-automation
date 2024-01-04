@@ -23,6 +23,8 @@ export class ScenarioService {
   }
 
   getTestCasesForScenario(scenarioId: string): Observable<any[]> {
+    console.log('scenarioId in scenario.service.ts:', scenarioId);
+
     return this.http.get<any[]>(`${this.baseUrl}/testcase/${scenarioId}`);
   }
 

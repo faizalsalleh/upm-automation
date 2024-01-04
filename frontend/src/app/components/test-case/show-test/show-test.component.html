@@ -1,6 +1,7 @@
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Test Case Result
+    <button type="button" class="btn btn-info float-right btn-sm mr-2" (click)="goBack()">Back</button>
   </div>
   <div class="card-body">
     <!--begin::Content-->
@@ -16,12 +17,12 @@
         <span> {{ testCase?.user_num }}</span>
       </div>
       <div class="col-lg-6">
-        <strong>Duration:</strong>
-        <span> {{ testCase?.duration }}</span>
-      </div>
-      <div class="col-lg-6">
         <strong>Spawn rate (users started/second):</strong>
         <span> {{ testCase?.spawn_rate }}</span>
+      </div>
+      <div class="col-lg-6">
+        <strong></strong>
+        <span></span>
       </div>
     </div>
     <hr>

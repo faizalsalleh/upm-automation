@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProjectService } from '../../../services/project.service';
 import { AlertService  } from '../../../services/alert.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-project-index',
@@ -13,7 +14,12 @@ export class ProjectIndexComponent implements OnInit {
   alertMessage: string = '';  // Initialize as empty string
   alertType: 'error' | 'info' | 'warning' | 'success' = 'info';  // Keep the default type
 
-  constructor(private projectService: ProjectService, private alertService: AlertService, private router: Router) { }
+  constructor(
+    private projectService: ProjectService,
+    private alertService: AlertService,
+    private router: Router,
+    private location: Location
+    ) { }
 
   ngOnInit(): void {
     const navigation = this.router.getCurrentNavigation();
@@ -29,5 +35,9 @@ export class ProjectIndexComponent implements OnInit {
       next: (data) => this.projects = data,
       error: (error) => console.error('Error fetching projects', error)
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

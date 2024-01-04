@@ -7,6 +7,7 @@ const projectRoutes = require('./routes/project');
 const scenarioRoutes = require('./routes/scenario');
 const testCaseRoutes = require('./routes/test_case');
 const testCaseResultRoutes = require('./routes/test_case_result');
+const dashboardRoutes = require('./routes/dashboard');
 const { MongoClient } = require('mongodb');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/project', projectRoutes);
 app.use('/api/scenario', scenarioRoutes);
 app.use('/api/testcase', testCaseRoutes);
 app.use('/api/testcase/result', testCaseResultRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // MongoDB connection string for a local instance
 const uri = "mongodb://localhost:27017/automation";

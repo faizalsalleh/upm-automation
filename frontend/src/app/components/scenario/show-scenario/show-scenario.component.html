@@ -2,6 +2,7 @@
 <div class="card">
   <div class="card-header h5 font-weight-bold">
     Scenario Detail
+    <a [routerLink]="['/dashboard/show', scenario?._id]" class="btn btn-warning btn-sm float-right">View Dashboard</a>
     <!-- <button (click)="deleteScenario(scenario._id)" class="btn btn-danger btn-sm float-right">Remove</button>
     <a [routerLink]="['/scenario/edit', scenario._id]" class="btn btn-primary btn-sm mr-2 float-right">Edit</a> -->
   </div>

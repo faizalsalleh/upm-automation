@@ -32,7 +32,6 @@ export class ShowScenarioComponent implements OnInit {
     const alertInfo = this.alertService.getAlert();
     this.alertMessage = alertInfo.message;
     this.alertType = alertInfo.type;
-    console.log('Alert Message:', this.alertMessage);
 
     // Clear the alert message in the service after retrieving it
     this.alertService.clearAlert();
